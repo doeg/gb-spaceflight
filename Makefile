@@ -4,11 +4,11 @@ FIX = rgbfix
 
 #Change the following lines
 ROM_NAME = spaceflight
-SOURCES = src/main.asm
+SOURCES = src/main.asm src/lcd.asm
 FIX_FLAGS = -v -p 0
 
 
-INCDIR = inc
+INCDIR = include
 OBJECTS = $(SOURCES:%.asm=%.o)
 
 all: $(ROM_NAME)
