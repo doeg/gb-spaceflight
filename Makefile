@@ -4,7 +4,7 @@ FIX = rgbfix
 
 #Change the following lines
 ROM_NAME = spaceflight
-SOURCES = src/main.asm src/lcd.asm
+SOURCES = src/main.asm src/lcd.asm src/memory.asm src/splash.asm
 FIX_FLAGS = -v -p 0
 
 

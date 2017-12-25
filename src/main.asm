@@ -14,6 +14,10 @@ main::
 start_splash::
   ld B, $16 ; clear tile ID
   _RESET_
+  call wait_vblank
+  call lcd_off
+  call load_splash_data
+  call lcd_on 
 
 .splash_loop:
   call wait_vblank

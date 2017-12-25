@@ -1,3 +1,6 @@
+; All addresses are documented in the pandocs:
+; http://gameboy.mongenel.com/dmg/gbspec.txt
+
 LCD_CTRL                EQU    $FF40
 LCD_STAT                EQU    $FF41
 LCD_SCROLL_Y            EQU    $FF42
