@@ -13,8 +13,12 @@ load_splash_data::
   ; Reset BG & Window tile data select (0: $8800-$97FF)
   res 4, [HL]
 
+  ; Invert the background palette
+  ld HL, LCD_BG_PAL
+  LD [HL], %00011011
+
   ; load top tile map to vram (background)
-  ld DE, VRAM_MAP_BLOCK0_SIZE
+  ld DE, splash_tile_data_size
   ld BC, splash_tile_data
   ld HL, VRAM_TILES_BACKGROUND
   call memcpy
