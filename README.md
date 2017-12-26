@@ -7,3 +7,4 @@
 
 ### Resources
 - [Flappy Boy](https://github.com/bitnenfer/flappy-boy-asm) by [Felipe Alfonso](https://github.com/bitnenfer)
+- [Snake](https://github.com/jeremyherbert/gb-snake) by [Jeremy Herbert](https://github.com/jeremyherbert)
