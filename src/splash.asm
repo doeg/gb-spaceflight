@@ -1,3 +1,13 @@
+SECTION "splash_variables", WRAM0
+
+variables_start:
+; we need this so that it pushes all of the other variables away from our OAM ram bank (40 sprites, 4 bytes each)
+OAM_DATA: DS 40 * 4
+; DS allocates a number of bytes. The content is undefined.
+; This is the preferred method of allocating space in a RAM section.
+; See https://rednex.github.io/rgbds/rgbasm.5.html#Declaring_variables_in_a_RAM_section
+ADDR: DS 2
+
 SECTION "splash", ROMX
 
 INCLUDE "splash_map.inc"
@@ -8,16 +18,20 @@ load_splash_data::
   ; Configure LCD
   ld HL, LCD_CTRL
   ; Reset OBJ (Sprite) Display (0: off)
-  res 1, [HL]
+  set 1, [HL]
   ; Set BG Tile Map Display Select (1: $9C00-$9FFF)
   set 3, [HL]
   ; Reset BG & Window tile data select (0: $8800-$97FF)
   res 4, [HL]
 
-  ; Invert the background palette
+  ; Invert background & OBJ0 palette
   ; (so that the background is white text, black bc)
-  ld HL, LCD_BG_PAL
-  LD [HL], %00011011
+  ld hl, LCD_BG_PAL
+  LD [hl], %00011011
+  ld hl, OBJ0_PAL
+  ld [hl], %00011011
+  ld hl, OBJ1_PAL
+  ld [hl], %00011011
 
   ; load top tile map to vram (background)
   ld DE, splash_tile_data_size
@@ -30,9 +44,9 @@ load_splash_data::
 
   ; Prompt text.
   ; Load the ASCII tileset into sprite memory
-  ld hl, tile_data
+  ld hl, ascii
   ld de, VRAM_TILES_SPRITE
-  ld bc, 256 * 8 ; 256 chars, 8 bytes each
+  ld bc, 31 * 8 ;
   call mem_CopyMono
 
   ret
@@ -132,17 +146,9 @@ load_splash_data::
   ret
 
 ; and initialise the ascii tileset
-tile_data:
-	chr_IBMPC1	1,8
+ascii:
+	chr_IBMPC1 3, 3
 splash_text:
   db "Press A"
 splash_text_end:
   nop
-
-; WRAM0 is a general purpose RAM section. Can only allocate, not fill.
-SECTION "splash_var", WRAM0
-
-; DS allocates a number of bytes. The content is undefined.
-; This is the preferred method of allocating space in a RAM section.
-; See https://rednex.github.io/rgbds/rgbasm.5.html#Declaring_variables_in_a_RAM_section
-ADDR: DS 2
