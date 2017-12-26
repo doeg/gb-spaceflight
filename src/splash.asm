@@ -8,6 +8,9 @@ OAM_DATA: DS 40 * 4
 ; See https://rednex.github.io/rgbds/rgbasm.5.html#Declaring_variables_in_a_RAM_section
 ADDR: DS 2
 
+PROMPT_X EQU $40
+PROMPT_Y EQU $80
+
 SECTION "splash", ROMX
 
 INCLUDE "splash_map.inc"
@@ -54,6 +57,54 @@ load_splash_data::
   ld hl, $FE00 ; start of OAM
   ld bc, $A0 ; the full size of the OAM area: 40 bytes, 4 bytes per sprite
   call mem_set
+
+  ; P
+  ld HL, $FE00 + ($04 * 0)
+  ld [hl], PROMPT_Y ;y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 0) ; x
+  inc l
+  ld [hl], $10 ; tile number
+
+  ; R
+  ld HL, $FE00 + ($04 * 1)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 1) ; x
+  inc l
+  ld [hl], $12 ; tile number
+
+  ; E
+  ld HL, $FE00 + ($04 * 2)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 2) ; x
+  inc l
+  ld [hl], $05 ; tile number
+
+  ; S
+  ld HL, $FE00 + ($04 * 3)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 3) ; x
+  inc l
+  ld [hl], $13 ; tile number
+
+  ; S
+  ld HL, $FE00 + ($04 * 4)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 4) ; x
+  inc l
+  ld [hl], $13 ; tile number
+
+  ; A
+  ld HL, $FE00 + ($04 * 5)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 6) ; x
+  inc l
+  ld [hl], $01 ; tile number
 
   ret
 
