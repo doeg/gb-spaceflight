@@ -32,7 +32,7 @@ memcpy::
 ;*   bc - bytecount of Source
 ;*
 ;***************************************************************************
-mem_CopyMono::
+mem_copy_mono::
 	inc	b
 	inc	c
 	jr	.skip
@@ -44,6 +44,28 @@ mem_CopyMono::
   inc     de
 .skip
   dec	c
+	jr	nz,.loop
+	dec	b
+	jr	nz,.loop
+	ret
+
+
+;***************************************************************************
+;*
+;* mem_Set - "Set" a memory region
+;*
+;* input:
+;*    a - value
+;*   hl - pMem
+;*   bc - bytecount
+;*
+;***************************************************************************
+mem_set::
+	inc	b
+	inc	c
+	jr	.skip
+.loop	ld	[hl+],a
+.skip	dec	c
 	jr	nz,.loop
 	dec	b
 	jr	nz,.loop
