@@ -2,6 +2,7 @@ SECTION "splash", ROMX
 
 INCLUDE "splash_map.inc"
 INCLUDE "constants.inc"
+INCLUDE "ibmpc1.inc"
 
 load_splash_data::
   ; Configure LCD
@@ -14,6 +15,7 @@ load_splash_data::
   res 4, [HL]
 
   ; Invert the background palette
+  ; (so that the background is white text, black bc)
   ld HL, LCD_BG_PAL
   LD [HL], %00011011
 
@@ -25,6 +27,14 @@ load_splash_data::
 
   ; Load tile data
   call .load_splash_tiles
+
+  ; Prompt text.
+  ; Load the ASCII tileset into sprite memory
+  ld hl, tile_data
+  ld de, VRAM_TILES_SPRITE
+  ld bc, 256 * 8 ; 256 chars, 8 bytes each
+  call mem_CopyMono
+
   ret
 
 .load_splash_tiles:
@@ -120,6 +130,14 @@ load_splash_data::
   call memcpy
 
   ret
+
+; and initialise the ascii tileset
+tile_data:
+	chr_IBMPC1	1,8
+splash_text:
+  db "Press A"
+splash_text_end:
+  nop
 
 ; WRAM0 is a general purpose RAM section. Can only allocate, not fill.
 SECTION "splash_var", WRAM0

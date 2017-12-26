@@ -21,3 +21,30 @@ memcpy::
     cp $00
     jr nz, .memcpy_loop
     ret
+
+;***************************************************************************
+;*
+;* mem_Copy - "Copy" a monochrome font from ROM to RAM
+;*
+;* input:
+;*   hl - pSource
+;*   de - pDest
+;*   bc - bytecount of Source
+;*
+;***************************************************************************
+mem_CopyMono::
+	inc	b
+	inc	c
+	jr	.skip
+.loop
+  ld	a,[hl+]
+	ld	[de],a
+	inc	de
+  ld      [de],a
+  inc     de
+.skip
+  dec	c
+	jr	nz,.loop
+	dec	b
+	jr	nz,.loop
+	ret
