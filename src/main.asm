@@ -29,6 +29,7 @@ start_splash::
   ; Clear the screen
   ld B, $16
   _RESET_
+  call clear_joypad
 
   ; Initialize splash data
   call wait_vblank
@@ -49,9 +50,19 @@ start_splash::
   ; Enable interrupts
   ei
 
-.main_loop:
-  ; Loop forever
-  jr .main_loop
+.splash_loop:
+  call wait_vblank
+  call update_splash
+  jr .splash_loop
+
+start_game::
+  ld B, $00 ; clear tile id
+  _RESET_
+  call clear_joypad
+  call wait_vblank
+  call lcd_off
+  di 
+  halt
 
 ; See http://gameboy.mongenel.com/dmg/timer.txt
 init_timer::

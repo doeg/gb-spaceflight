@@ -1,7 +1,7 @@
 SECTION "splash_variables", WRAM0
 
 variables_start:
-; horizontal (x) and vertical (y) offset of the prompt 
+; horizontal (x) and vertical (y) offset of the prompt
 PROMPT_X EQU $40
 PROMPT_Y EQU $80
 
@@ -10,6 +10,13 @@ SECTION "splash", ROMX
 INCLUDE "splash_map.inc"
 INCLUDE "constants.inc"
 INCLUDE "ibmpc1.inc"
+
+update_splash::
+  call read_joypad
+  ld hl, IO_P15
+  bit BUTTON_A, [hl]
+  jp z, start_game
+  ret
 
 load_splash_data::
   ; Configure LCD
