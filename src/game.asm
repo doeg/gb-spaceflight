@@ -5,6 +5,12 @@ SECTION "game", ROMX
 INCLUDE "constants.inc"
 INCLUDE "bg_space_map.inc"
 
+handle_game_timer_interrupt::
+  nop
+  nop
+  nop
+  ret
+
 load_game_data::
   ; Configure LCD
   ld HL, LCD_CTRL

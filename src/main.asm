@@ -76,6 +76,7 @@ start_splash::
   jr .splash_loop
 
 start_game::
+  di
   ld B, $00 ; clear tile id
   _RESET_
   call init_game_state
@@ -85,7 +86,9 @@ start_game::
   call init_game_state
   call load_game_data
   call lcd_on
+  ei
 .game_loop:
+  call wait_vblank
   jr .game_loop
 
 init_game_state::
@@ -118,6 +121,27 @@ init_timer::
   ret
 
 timer_interrupt::
+  ; Push AF onto the stack so that we can use a
+  push af
+  ; Load the current game state onto a
+  ld a, [GAME_STATE]
+
+  ; If game state is 0, we're interrupting the splash
+  cp $0
+  jr z, .interrupt_splash
+
+  ; Otherwise, we're interrupting the game
+.interrupt_game:
+  pop af
+  call handle_game_timer_interrupt
+  jr .timer_done
+
+  ; Restore the original values of AF since we're done with them
+.interrupt_splash:
+  pop af
   call handle_splash_timer_interrupt
+  jr .timer_done
+
+.timer_done:
   call init_timer
   reti
