@@ -42,7 +42,7 @@ start_splash::
 	;  IEF_TIMER -> Bit 2 high -> Timer Interrupt Enabled
 	ld a, IEF_TIMER | IEF_VBLANK
 	; Write the accumulator bitmask to the Interrupt Enable register
-  ld [rIE], a
+	ld [rIE], a
 
 	; Initialize the interrupt counter to 0
 	ld a, 0
@@ -68,13 +68,13 @@ timer_wait::
 	; We want the timer to run at 4KHz
 	;   TACF_4KHZ -> bit 1 and bit 0 low -> 4096 hz timer
 	ld a, TACF_START|TACF_4KHZ
-  ; Write the timer control bitmask value to the timer control register
-  ld [rTAC], a
-  ; Stop the CPU waiting for interrupts to happen
-  halt
-  ; Always NOP after a halt - hardware bug
-  nop
-  ret
+	; Write the timer control bitmask value to the timer control register
+	ld [rTAC], a
+	; Stop the CPU waiting for interrupts to happen
+	halt
+	; Always NOP after a halt - hardware bug
+	nop
+	ret
 
 timer_interrupt::
 	push af
