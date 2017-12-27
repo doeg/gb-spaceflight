@@ -129,3 +129,29 @@ BUTTON_START            EQU    $3
 ; LCD constants
 LCD_WIDTH               EQU    160
 LCD_HEIGHT              EQU    144
+
+; TMA - Timer modulo (R/W)
+rTMA EQU $FF06
+
+; TAC - Timer control (R/W)
+rTAC EQU $FF07
+
+; IF - Interrupt Flag (R/W)
+rIF EQU $FF0F
+
+; IE - Interrupt Enable (R/W)
+rIE EQU $FFFF
+
+; Timer constants
+IEF_HILO    EQU  %00010000 ; Transition from High to Low of Pin number P10-P13
+IEF_SERIAL  EQU  %00001000 ; Serial I/O transfer end
+IEF_TIMER   EQU  %00000100 ; Timer Overflow
+IEF_LCDC    EQU  %00000010 ; LCDC (see STAT)
+IEF_VBLANK  EQU  %00000001 ; V-Blank
+
+TACF_START   EQU %00000100
+TACF_STOP    EQU %00000000
+TACF_4KHZ    EQU %00000000
+TACF_16KHZ   EQU %00000011
+TACF_65KHZ   EQU %00000010
+TACF_262KHZ  EQU %00000001
