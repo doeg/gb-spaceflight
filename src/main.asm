@@ -78,9 +78,28 @@ timer_wait::
 
 timer_interrupt::
 	push af
+	push hl
+
 	ld a, [COUNTER]
-	inc a
+	cp $0
+	jr z, .hide_prompt
+
+.show_prompt:
+	ld hl, OBJ0_PAL
+	ld [hl], %11100100
+	ld a, 0
 	ld [COUNTER], a
+	jr .done
+
+.hide_prompt:
+	ld hl, OBJ0_PAL
+	ld [hl], %00011011
+	ld a, 1
+	ld [COUNTER], a
+	jr .done
+
+.done:
+	pop hl
 	pop af
 	reti
 
