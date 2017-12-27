@@ -37,11 +37,8 @@ start_splash::
   call lcd_on
 
   di
-  ; Set accumulator with VBlank and Timer enabled bitmask
-  ;  IEF_VBLANK -> Bit 0 high -> VBlank Interrupt Enabled
-  ;  IEF_TIMER -> Bit 2 high -> Timer Interrupt Enabled
-  ld a, IEF_TIMER | IEF_VBLANK
-  ; Write the accumulator bitmask to the Interrupt Enable register
+  ; Enable timer, vblank, and joypad interrupts
+  ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
   ld [rIE], a
 
   ; Initialize the interrupt counter to 0
