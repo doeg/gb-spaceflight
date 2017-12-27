@@ -1,3 +1,5 @@
+; Functions in this file are by bitnenfer
+; https://github.com/bitnenfer/flappy-boy-asm
 SECTION "lcd", ROMX
 
 INCLUDE "constants.inc"
