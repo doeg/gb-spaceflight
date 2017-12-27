@@ -1,26 +1,105 @@
+SECTION "splash_variables", WRAM0
+
+variables_start:
+; horizontal (x) and vertical (y) offset of the prompt 
+PROMPT_X EQU $40
+PROMPT_Y EQU $80
+
 SECTION "splash", ROMX
 
 INCLUDE "splash_map.inc"
 INCLUDE "constants.inc"
+INCLUDE "ibmpc1.inc"
 
 load_splash_data::
   ; Configure LCD
   ld HL, LCD_CTRL
   ; Reset OBJ (Sprite) Display (0: off)
-  res 1, [HL]
+  set 1, [HL]
   ; Set BG Tile Map Display Select (1: $9C00-$9FFF)
   set 3, [HL]
   ; Reset BG & Window tile data select (0: $8800-$97FF)
   res 4, [HL]
 
+  ; Invert background & OBJ0 palette
+  ; (so that the background is white text, black bc)
+  ld hl, LCD_BG_PAL
+  LD [hl], %00011011
+  ld hl, OBJ0_PAL
+  ld [hl], %00011011
+  ld hl, OBJ1_PAL
+  ld [hl], %00011011
+
   ; load top tile map to vram (background)
-  ld DE, VRAM_MAP_BLOCK0_SIZE
+  ld DE, splash_tile_data_size
   ld BC, splash_tile_data
   ld HL, VRAM_TILES_BACKGROUND
   call memcpy
 
   ; Load tile data
   call .load_splash_tiles
+
+  ; Prompt text.
+  ; Load the ASCII tileset into sprite memory
+  ld hl, ascii
+  ld de, VRAM_TILES_SPRITE
+  ld bc, 31 * 8 ;
+  call mem_copy_mono
+
+  ; Clear out the object attribute memory (OAM)
+  ld a, 0 ; value
+  ld hl, $FE00 ; start of OAM
+  ld bc, $A0 ; the full size of the OAM area: 40 bytes, 4 bytes per sprite
+  call mem_set
+
+  ; P
+  ld HL, $FE00 + ($04 * 0)
+  ld [hl], PROMPT_Y ;y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 0) ; x
+  inc l
+  ld [hl], $10 ; tile number
+
+  ; R
+  ld HL, $FE00 + ($04 * 1)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 1) ; x
+  inc l
+  ld [hl], $12 ; tile number
+
+  ; E
+  ld HL, $FE00 + ($04 * 2)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 2) ; x
+  inc l
+  ld [hl], $05 ; tile number
+
+  ; S
+  ld HL, $FE00 + ($04 * 3)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 3) ; x
+  inc l
+  ld [hl], $13 ; tile number
+
+  ; S
+  ld HL, $FE00 + ($04 * 4)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 4) ; x
+  inc l
+  ld [hl], $13 ; tile number
+
+  ; A
+  ld HL, $FE00 + ($04 * 5)
+  ld [hl], PROMPT_Y
+  inc l
+  ld [hl], PROMPT_X + ($8 * 6) ; x
+  inc l
+  ld [hl], $01 ; tile number
+
   ret
 
 .load_splash_tiles:
@@ -117,10 +196,10 @@ load_splash_data::
 
   ret
 
-; WRAM0 is a general purpose RAM section. Can only allocate, not fill.
-SECTION "splash_var", WRAM0
-
-; DS allocates a number of bytes. The content is undefined.
-; This is the preferred method of allocating space in a RAM section.
-; See https://rednex.github.io/rgbds/rgbasm.5.html#Declaring_variables_in_a_RAM_section
-ADDR: DS 2
+; and initialise the ascii tileset
+ascii:
+	chr_IBMPC1 3, 3
+splash_text:
+  db "Press A"
+splash_text_end:
+  nop
