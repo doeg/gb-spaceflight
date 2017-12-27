@@ -54,6 +54,8 @@ load_game_data::
   ld hl, LCD_BG_PAL
   LD [hl], %11100100
 
+  call clear_oam 
+
   ; load top tile map to vram (background)
   ld DE, bg_space_tile_data_size
   ld BC, bg_space_tile_data

@@ -88,11 +88,7 @@ load_splash_data::
   ld bc, 31 * 8 ;
   call mem_copy_mono
 
-  ; Clear out the object attribute memory (OAM)
-  ld a, 0 ; value
-  ld hl, $FE00 ; start of OAM
-  ld bc, $A0 ; the full size of the OAM area: 40 bytes, 4 bytes per sprite
-  call mem_set
+  call clear_oam
 
   ; P
   ld HL, $FE00 + ($04 * 0)
