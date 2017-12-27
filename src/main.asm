@@ -36,7 +36,7 @@ start_splash::
   call load_splash_data
   call lcd_on
 
-.init_interrupts:
+	di
 	; Set accumulator with VBlank and Timer enabled bitmask
 	;  IEF_VBLANK -> Bit 0 high -> VBlank Interrupt Enabled
 	;  IEF_TIMER -> Bit 2 high -> Timer Interrupt Enabled
@@ -55,7 +55,7 @@ start_splash::
 	; Set up a timer and wait
 	call timer_wait
 	; Loop forever
-	jr main_loop
+	jr .main_loop
 
 timer_wait::
 	; Set up a timer modulo
@@ -85,7 +85,7 @@ timer_interrupt::
 	reti
 
 
-SECTION "game_vars", WRAM0
+SECTION "game_vars", WRAM0[$C800]
 
 ; Whatever, just a counter
 COUNTER: ds 1
