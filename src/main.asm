@@ -18,6 +18,20 @@ SECTION  "start", ROM0[$0100]
 
 INCLUDE "header.inc"
 
+
+
+SECTION "timer_vars", WRAM0[$C800]
+
+; Whatever, just a counter
+COUNTER:: ds 1
+
+; Maintains game state (splash, game, game over)
+GAME_STATE:: ds 1
+GAME_STATE_SPLASH EQU $00
+GAME_STATE_GAME EQU $01
+
+SECTION "main", ROMX
+
 main::
   nop
   jp start_splash
@@ -45,7 +59,13 @@ start_splash::
   ; Initialize the interrupt counter to 0
   ld a, 0
   ld [COUNTER], a
+
+  ; Initialize timer code
   call init_timer
+
+  ; Set the game state
+  ld a, GAME_STATE_SPLASH
+  ld [GAME_STATE], a
 
   ; Enable interrupts
   ei
@@ -58,15 +78,25 @@ start_splash::
 start_game::
   ld B, $00 ; clear tile id
   _RESET_
+  call init_game_state
   call clear_joypad
   call wait_vblank
   call lcd_off
+  call init_game_state
   call load_game_data
   call lcd_on
-  di
 .game_loop:
-  call wait_vblank
   jr .game_loop
+
+init_game_state::
+  ; Set the X/Y scroll registers to the upper left of the tile map
+  ld a, 50
+  ld [LCD_SCROLL_X], a
+  ld [LCD_SCROLL_Y], a
+  ; Change the game state
+  ld a, GAME_STATE_GAME
+  ld [GAME_STATE], a
+  ret
 
 ; See http://gameboy.mongenel.com/dmg/timer.txt
 init_timer::
@@ -91,9 +121,3 @@ timer_interrupt::
   call handle_splash_timer_interrupt
   call init_timer
   reti
-
-
-SECTION "timer_vars", WRAM0[$C800]
-
-; Whatever, just a counter
-COUNTER:: ds 1
