@@ -1,9 +1,8 @@
 INCLUDE "constants.inc"
 INCLUDE "macros.inc"
 
-; First we set up the IRQs to return back out (since we aren't making use of them)
 SECTION	"Vblank", ROM0[$0040]
-	jp $FF80		; DMA code
+	reti
 SECTION	"LCDC", ROM0[$0048]
 	reti
 SECTION	"Timer_Overflow", ROM0[$0050]
@@ -20,7 +19,6 @@ SECTION	"start", ROM0[$0100]
 INCLUDE "header.inc"
 
 main::
-  call setup_dma
   jp start_splash
 
 start_splash::

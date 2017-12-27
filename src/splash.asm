@@ -1,13 +1,7 @@
 SECTION "splash_variables", WRAM0
 
 variables_start:
-; we need this so that it pushes all of the other variables away from our OAM ram bank (40 sprites, 4 bytes each)
-OAM_DATA: DS 40 * 4
-; DS allocates a number of bytes. The content is undefined.
-; This is the preferred method of allocating space in a RAM section.
-; See https://rednex.github.io/rgbds/rgbasm.5.html#Declaring_variables_in_a_RAM_section
-ADDR: DS 2
-
+; horizontal (x) and vertical (y) offset of the prompt 
 PROMPT_X EQU $40
 PROMPT_Y EQU $80
 
