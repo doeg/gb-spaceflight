@@ -1,14 +1,38 @@
 SECTION "game_vars", WRAM0
 
+; one byte counter that gets decremented in a timer
+INTERRUPT_COUNTER: ds 1
+DEFAULT_INTERRUPT_COUNTER EQU $01
+
 SECTION "game", ROMX
 
 INCLUDE "constants.inc"
 INCLUDE "bg_space_map.inc"
 
 handle_game_timer_interrupt::
-  nop
-  nop
-  nop
+  push af
+  ld a, [INTERRUPT_COUNTER]
+  dec a
+  jp nz, .finish
+
+  ; If zero, move the window and reset the counter
+  call motion_update
+  ld a, DEFAULT_INTERRUPT_COUNTER
+
+.finish:
+  ld [INTERRUPT_COUNTER], a
+  pop af
+  reti
+
+motion_update::
+  push af
+  ld a, [LCD_SCROLL_Y]
+  inc a
+  inc a
+  inc a
+  inc a
+  ld [LCD_SCROLL_Y], a
+  pop af
   ret
 
 load_game_data::
@@ -20,6 +44,10 @@ load_game_data::
   set 3, [HL]
   ; Reset BG & Window tile data select (0: $8800-$97FF)
   res 4, [HL]
+
+  ; Initialize the interrupt counter
+  ld a, DEFAULT_INTERRUPT_COUNTER
+  ld [INTERRUPT_COUNTER], a
 
   ld hl, LCD_BG_PAL
   LD [hl], %11100100
