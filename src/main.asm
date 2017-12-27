@@ -44,33 +44,32 @@ start_splash::
   ; Initialize the interrupt counter to 0
   ld a, 0
   ld [COUNTER], a
+  call init_timer
 
   ; Enable interrupts
   ei
 
 .main_loop:
-  ; Set up a timer and wait
-  call timer_wait
   ; Loop forever
   jr .main_loop
 
-timer_wait::
+; See http://gameboy.mongenel.com/dmg/timer.txt
+init_timer::
   ; Set up a timer modulo
   ld a, 10
   ; Write the timer modulo to the TMA register
   ; when the timer overflows it will be reset to this value
   ld [rTMA], a
+
   ; Set up a timer control bitmask.
   ;   TACF_START -> bit 2 high -> start the timer
   ; We want the timer to run at 4KHz
   ;   TACF_4KHZ -> bit 1 and bit 0 low -> 4096 hz timer
+
   ld a, TACF_START|TACF_4KHZ
-  ; Write the timer control bitmask value to the timer control register
+
+  ; $FF07 (TAC) selects the clock frequency. You set it to 4 for a frequency of 4.096Khz
   ld [rTAC], a
-  ; Stop the CPU waiting for interrupts to happen
-  halt
-  ; Always NOP after a halt - hardware bug
-  nop
   ret
 
 timer_interrupt::
@@ -98,6 +97,7 @@ timer_interrupt::
 .done:
   pop hl
   pop af
+  call init_timer
   reti
 
 
