@@ -61,8 +61,12 @@ start_game::
   call clear_joypad
   call wait_vblank
   call lcd_off
-  di 
-  halt
+  call load_game_data
+  call lcd_on
+  di
+.game_loop:
+  call wait_vblank
+  jr .game_loop
 
 ; See http://gameboy.mongenel.com/dmg/timer.txt
 init_timer::
@@ -112,7 +116,7 @@ timer_interrupt::
   reti
 
 
-SECTION "game_vars", WRAM0[$C800]
+SECTION "timer_vars", WRAM0[$C800]
 
 ; Whatever, just a counter
 COUNTER: ds 1
