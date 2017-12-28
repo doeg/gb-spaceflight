@@ -1,5 +1,5 @@
 
-# gb-spaceflight
+# gb-spaceflight :rocket: :crescent_moon: :sparkles: 
 
 ![flying](https://user-images.githubusercontent.com/855595/34397136-47dd7f18-eb41-11e7-8b27-1d98f59fa6d0.gif)
 
