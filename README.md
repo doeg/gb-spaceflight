@@ -1,4 +1,7 @@
+
 # gb-spaceflight
+
+![flying](https://user-images.githubusercontent.com/855595/34397136-47dd7f18-eb41-11e7-8b27-1d98f59fa6d0.gif)
 
 ### Toolchain
 - [RGBDS](https://rednex.github.io/) to compile assembly to ROM
