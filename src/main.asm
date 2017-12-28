@@ -18,6 +18,20 @@ SECTION  "start", ROM0[$0100]
 
 INCLUDE "header.inc"
 
+
+
+SECTION "timer_vars", WRAM0[$C800]
+
+; Whatever, just a counter
+COUNTER:: ds 1
+
+; Maintains game state (splash, game, game over)
+GAME_STATE:: ds 1
+GAME_STATE_SPLASH EQU $00
+GAME_STATE_GAME EQU $01
+
+SECTION "main", ROMX
+
 main::
   nop
   jp start_splash
@@ -29,6 +43,7 @@ start_splash::
   ; Clear the screen
   ld B, $16
   _RESET_
+  call clear_joypad
 
   ; Initialize splash data
   call wait_vblank
@@ -37,74 +52,96 @@ start_splash::
   call lcd_on
 
   di
-  ; Set accumulator with VBlank and Timer enabled bitmask
-  ;  IEF_VBLANK -> Bit 0 high -> VBlank Interrupt Enabled
-  ;  IEF_TIMER -> Bit 2 high -> Timer Interrupt Enabled
-  ld a, IEF_TIMER | IEF_VBLANK
-  ; Write the accumulator bitmask to the Interrupt Enable register
+  ; Enable timer, vblank, and joypad interrupts
+  ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
   ld [rIE], a
 
   ; Initialize the interrupt counter to 0
   ld a, 0
   ld [COUNTER], a
 
+  ; Initialize timer code
+  call init_timer
+
+  ; Set the game state
+  ld a, GAME_STATE_SPLASH
+  ld [GAME_STATE], a
+
   ; Enable interrupts
   ei
 
-.main_loop:
-  ; Set up a timer and wait
-  call timer_wait
-  ; Loop forever
-  jr .main_loop
+.splash_loop:
+  call wait_vblank
+  call update_splash
+  jr .splash_loop
 
-timer_wait::
+start_game::
+  di
+  ld B, $00 ; clear tile id
+  _RESET_
+  call init_game_state
+  call clear_joypad
+  call wait_vblank
+  call lcd_off
+  call init_game_state
+  call load_game_data
+  call lcd_on
+  ei
+.game_loop:
+  call wait_vblank
+  jr .game_loop
+
+init_game_state::
+  ; Set the X/Y scroll registers to the upper left of the tile map
+  ld a, 50
+  ld [LCD_SCROLL_X], a
+  ld [LCD_SCROLL_Y], a
+  ; Change the game state
+  ld a, GAME_STATE_GAME
+  ld [GAME_STATE], a
+  ret
+
+; See http://gameboy.mongenel.com/dmg/timer.txt
+init_timer::
   ; Set up a timer modulo
   ld a, 10
   ; Write the timer modulo to the TMA register
   ; when the timer overflows it will be reset to this value
   ld [rTMA], a
+
   ; Set up a timer control bitmask.
   ;   TACF_START -> bit 2 high -> start the timer
   ; We want the timer to run at 4KHz
   ;   TACF_4KHZ -> bit 1 and bit 0 low -> 4096 hz timer
+
   ld a, TACF_START|TACF_4KHZ
-  ; Write the timer control bitmask value to the timer control register
+
+  ; $FF07 (TAC) selects the clock frequency. You set it to 4 for a frequency of 4.096Khz
   ld [rTAC], a
-  ; Stop the CPU waiting for interrupts to happen
-  halt
-  ; Always NOP after a halt - hardware bug
-  nop
   ret
 
 timer_interrupt::
+  ; Push AF onto the stack so that we can use a
   push af
-  push hl
+  ; Load the current game state onto a
+  ld a, [GAME_STATE]
 
-  ld a, [COUNTER]
+  ; If game state is 0, we're interrupting the splash
   cp $0
-  jr z, .hide_prompt
+  jr z, .interrupt_splash
 
-.show_prompt:
-  ld hl, OBJ0_PAL
-  ld [hl], %11100100
-  ld a, 0
-  ld [COUNTER], a
-  jr .done
-
-.hide_prompt:
-  ld hl, OBJ0_PAL
-  ld [hl], %00011011
-  ld a, 1
-  ld [COUNTER], a
-  jr .done
-
-.done:
-  pop hl
+  ; Otherwise, we're interrupting the game
+.interrupt_game:
   pop af
+  call handle_game_timer_interrupt
+  jr .timer_done
+
+  ; Restore the original values of AF since we're done with them
+.interrupt_splash:
+  pop af
+  call handle_splash_timer_interrupt
+  jr .timer_done
+
+.timer_done:
+  call init_timer
   reti
-
-
-SECTION "game_vars", WRAM0[$C800]
-
-; Whatever, just a counter
-COUNTER: ds 1

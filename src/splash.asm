@@ -1,7 +1,7 @@
 SECTION "splash_variables", WRAM0
 
 variables_start:
-; horizontal (x) and vertical (y) offset of the prompt 
+; horizontal (x) and vertical (y) offset of the prompt
 PROMPT_X EQU $40
 PROMPT_Y EQU $80
 
@@ -10,6 +10,48 @@ SECTION "splash", ROMX
 INCLUDE "splash_map.inc"
 INCLUDE "constants.inc"
 INCLUDE "ibmpc1.inc"
+INCLUDE "macros.inc"
+
+init_splash::
+  ; Disable interrupts while we manipulate VRAM
+  di
+
+  ; Clear the screen
+  ld B, $16
+  _RESET_
+  call clear_joypad
+
+  ; Initialize splash data
+  call wait_vblank
+  call lcd_off
+  call load_splash_data
+  call lcd_on
+
+  di
+  ; Enable timer, vblank, and joypad interrupts
+  ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
+  ld [rIE], a
+
+  ; Initialize the interrupt counter to 0
+  ld a, 0
+  ld [COUNTER], a
+
+  ; Initialize timer code
+  call init_timer
+
+  ; Set the game state
+  ld a, $00
+  ld [GAME_STATE], a
+
+  ; Enable interrupts
+  ei
+
+update_splash::
+  call read_joypad
+  ld hl, IO_P15
+  bit BUTTON_A, [hl]
+  jp z, start_game
+  ret
 
 load_splash_data::
   ; Configure LCD
@@ -46,11 +88,7 @@ load_splash_data::
   ld bc, 31 * 8 ;
   call mem_copy_mono
 
-  ; Clear out the object attribute memory (OAM)
-  ld a, 0 ; value
-  ld hl, $FE00 ; start of OAM
-  ld bc, $A0 ; the full size of the OAM area: 40 bytes, 4 bytes per sprite
-  call mem_set
+  call clear_oam
 
   ; P
   ld HL, $FE00 + ($04 * 0)
@@ -194,6 +232,33 @@ load_splash_data::
   ld HL, $9E20
   call memcpy
 
+  ret
+
+handle_splash_timer_interrupt::
+  push af
+  push hl
+
+  ld a, [COUNTER]
+  cp $0
+  jr z, .hide_prompt
+
+.show_prompt:
+  ld hl, OBJ0_PAL
+  ld [hl], %11100100
+  ld a, 0
+  ld [COUNTER], a
+  jr .done
+
+.hide_prompt:
+  ld hl, OBJ0_PAL
+  ld [hl], %00011011
+  ld a, 1
+  ld [COUNTER], a
+  jr .done
+
+.done:
+  pop hl
+  pop af
   ret
 
 ; and initialise the ascii tileset
