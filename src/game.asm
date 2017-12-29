@@ -35,13 +35,13 @@ handle_game_timer_interrupt::
 motion_update::
   push af
   ld a, [LCD_SCROLL_Y]
-  sbc a, 10
+  sbc a, 1
   ld [LCD_SCROLL_Y], a
 
   ; Decrement the ship's x position
-  ; ld a, [SHIP_X]
-  ; sbc a, 2
-  ; ld [SHIP_X], a
+  ld a, [SHIP_Y]
+  sbc a, 4
+  ld [SHIP_Y], a
 
   pop af
   ret
