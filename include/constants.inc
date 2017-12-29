@@ -1,3 +1,10 @@
+pOAM EQU $fe00
+pOAM_END EQU $fe9f
+
+pHRAM EQU $ff80
+pHRAM_END EQU $fffe
+pSTACK EQU pHRAM_END
+
 ; All addresses are documented in the pandocs:
 ; http://gameboy.mongenel.com/dmg/gbspec.txt
 

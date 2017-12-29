@@ -40,6 +40,7 @@ start_splash::
 
   ; Clear the screen
   ld B, $16
+reset_splash::
   _RESET_
   call clear_joypad
 
