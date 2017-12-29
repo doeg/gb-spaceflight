@@ -41,6 +41,13 @@ motion_update::
   pop af
   ret
 
+run_game::
+  nop
+.run_game_loop:
+  call wait_vblank
+  call draw_ship
+  jr .run_game_loop
+
 load_game_data::
   ; Configure LCD
   ld HL, LCD_CTRL
@@ -90,13 +97,11 @@ load_game_data::
   ld HL, VRAM_TILES_BACKGROUND
   call memcpy
 
-  call .load_all_tiles
-
+  call load_all_tiles
   call draw_ship
-
   ret
 
-.load_all_tiles:
+load_all_tiles:
   ld de, bg_space_tile_map_size ;len
   ld bc, bg_space_map_data ;src
   ld hl, $9C00 ;dest

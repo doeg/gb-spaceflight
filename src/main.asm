@@ -79,20 +79,10 @@ start_game::
   di
   ld B, $00 ; clear tile id
   _RESET_
-  call init_game_state
   call clear_joypad
   call wait_vblank
   call lcd_off
-  call init_game_state
-  call load_game_data
-  call lcd_on
-  ei
-.game_loop:
-  call wait_vblank
-  call draw_ship
-  jr .game_loop
 
-init_game_state::
   ; Set the X/Y scroll registers to the upper left of the tile map
   ld a, 50
   ld [LCD_SCROLL_X], a
@@ -100,7 +90,11 @@ init_game_state::
   ; Change the game state
   ld a, GAME_STATE_GAME
   ld [GAME_STATE], a
-  ret
+
+  call load_game_data
+  call lcd_on
+  ei
+  jp run_game
 
 ; See http://gameboy.mongenel.com/dmg/timer.txt
 init_timer::
