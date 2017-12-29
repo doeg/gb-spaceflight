@@ -34,27 +34,6 @@ main::
   nop
   jp start_splash
 
-start_game::
-  di
-  ld B, $00 ; clear tile id
-  _RESET_
-  call clear_joypad
-  call wait_vblank
-  call lcd_off
-
-  ; Set the X/Y scroll registers to the upper left of the tile map
-  ld a, 50
-  ld [LCD_SCROLL_X], a
-  ld [LCD_SCROLL_Y], a
-  ; Change the game state
-  ld a, GAME_STATE_GAME
-  ld [GAME_STATE], a
-
-  call load_game_data
-  call lcd_on
-  ei
-  jp run_game_loop
-
 ; See http://gameboy.mongenel.com/dmg/timer.txt
 init_timer::
   ; Set up a timer modulo
