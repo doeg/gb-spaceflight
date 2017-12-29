@@ -15,9 +15,12 @@ lcd_on::
   ret
 
 wait_vblank::
+  push af
+.vblank_loop:
   ld A, [LCD_LINE_Y]
   cp 144
-  jr nz, wait_vblank
+  jr nz, .vblank_loop
+  pop af
   ret
 
 clear_bg_map::
