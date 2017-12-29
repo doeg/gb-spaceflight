@@ -41,12 +41,43 @@ motion_update::
   pop af
   ret
 
-run_game::
-  nop
-.run_game_loop:
+run_game_loop::
+  ; Detect motion
+  call read_joypad
+  ld hl, IO_P14
+  bit BUTTON_LEFT, [hl]
+  jp z, move_left
+  bit BUTTON_RIGHT, [hl]
+  jp z, move_right
+  jp game_draw
+
+move_left::
+  ld a, [SHIP_X]
+  sbc a, 2
+  ld [SHIP_X], a
+
+  ld a, [LCD_SCROLL_X]
+  sbc a, 1
+  ld [LCD_SCROLL_X], a
+
+  jp game_draw
+
+move_right::
+  ld a, [SHIP_X]
+  adc a, 2
+  ld [SHIP_X], a
+
+  ld a, [LCD_SCROLL_X]
+  adc a, 1
+  ld [LCD_SCROLL_X], a
+
+  jp game_draw
+
+game_draw::
+  call clear_joypad
   call wait_vblank
   call draw_ship
-  jr .run_game_loop
+  jr run_game_loop
 
 load_game_data::
   ; Configure LCD

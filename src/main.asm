@@ -94,7 +94,7 @@ start_game::
   call load_game_data
   call lcd_on
   ei
-  jp run_game
+  jp run_game_loop
 
 ; See http://gameboy.mongenel.com/dmg/timer.txt
 init_timer::
