@@ -89,6 +89,7 @@ start_game::
   ei
 .game_loop:
   call wait_vblank
+  call draw_ship
   jr .game_loop
 
 init_game_state::
