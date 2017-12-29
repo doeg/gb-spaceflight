@@ -38,11 +38,6 @@ motion_update::
   sbc a, 1
   ld [LCD_SCROLL_Y], a
 
-  ; Decrement the ship's x position
-  ld a, [SHIP_Y]
-  sbc a, 4
-  ld [SHIP_Y], a
-
   pop af
   ret
 
