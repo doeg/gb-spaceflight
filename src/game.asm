@@ -1,10 +1,14 @@
 SECTION "game_vars", WRAM0
 
-; one byte counter that gets decremented in a timer
+; One byte counter that gets decremented in a timer.
+; Controls the draw rate by overflowing when a frame
+; is to be animated.
 INTERRUPT_COUNTER: ds 1
 DEFAULT_INTERRUPT_COUNTER EQU $01
 
-SHIP_Y EQU $80
+; Dynamic ship x position
+SHIP_X: ds 1
+SHIP_Y: ds 1
 
 SECTION "game", ROMX
 
@@ -31,14 +35,49 @@ handle_game_timer_interrupt::
 motion_update::
   push af
   ld a, [LCD_SCROLL_Y]
-  dec a
-  dec a
-  dec a
-  dec a
-  dec a
+  sbc a, 1
   ld [LCD_SCROLL_Y], a
+
   pop af
   ret
+
+run_game_loop::
+  ; Detect motion
+  call read_joypad
+  ld hl, IO_P14
+  bit BUTTON_LEFT, [hl]
+  jp z, move_left
+  bit BUTTON_RIGHT, [hl]
+  jp z, move_right
+  jp game_draw
+
+move_left::
+  ld a, [SHIP_X]
+  sbc a, 2
+  ld [SHIP_X], a
+
+  ld a, [LCD_SCROLL_X]
+  sbc a, 1
+  ld [LCD_SCROLL_X], a
+
+  jp game_draw
+
+move_right::
+  ld a, [SHIP_X]
+  adc a, 2
+  ld [SHIP_X], a
+
+  ld a, [LCD_SCROLL_X]
+  adc a, 1
+  ld [LCD_SCROLL_X], a
+
+  jp game_draw
+
+game_draw::
+  call clear_joypad
+  call wait_vblank
+  call draw_ship
+  jr run_game_loop
 
 load_game_data::
   ; Configure LCD
@@ -51,8 +90,16 @@ load_game_data::
   res 4, [HL]
 
   ; Initialize the interrupt counter
+  ; TODO just zero the whole variables blockw
   ld a, DEFAULT_INTERRUPT_COUNTER
   ld [INTERRUPT_COUNTER], a
+
+  ; Initialize the ship's position
+  ld a, $50
+  ld [SHIP_X], a
+
+  ld a, $80
+  ld [SHIP_Y], a
 
   ; Set palettes
   ld hl, LCD_BG_PAL
@@ -75,47 +122,65 @@ load_game_data::
   ld hl, VRAM_TILES_SPRITE ;dest
   call memcpy
 
-  ; Add sprites to OAM (directly, for now)
-  ld hl, $FE00
-  ld [hl], SHIP_Y ;y
-  inc l
-  ld [hl], $50 ;x
-  inc l
-  ld [hl], $00; tile number
-
-  ld hl, $FE04
-  ld [hl], SHIP_Y ;y
-  inc l
-  ld [hl], $58 ;x
-  inc l
-  ld [hl], $01; tile number
-
-  ld hl, $FE08
-  ld [hl], SHIP_Y + $08 ;y
-  inc l
-  ld [hl], $50 ;x
-  inc l
-  ld [hl], $02; tile number
-
-  ld hl, $FE0C
-  ld [hl], SHIP_Y + $08 ;y
-  inc l
-  ld [hl], $58 ;x
-  inc l
-  ld [hl], $03; tile number
-
   ; load top tile map to vram (background)
   ld DE, bg_space_tile_data_size
   ld BC, bg_space_tile_data
   ld HL, VRAM_TILES_BACKGROUND
   call memcpy
 
-  call .load_all_tiles
+  call load_all_tiles
+  call draw_ship
   ret
 
-.load_all_tiles:
+load_all_tiles:
   ld de, bg_space_tile_map_size ;len
   ld bc, bg_space_map_data ;src
   ld hl, $9C00 ;dest
   call memcpy
+  ret
+
+draw_ship::
+  ; Load the ship's position into registers
+  ld hl, SHIP_Y
+  ld b, [hl]
+  ld hl, SHIP_X
+  ld c, [hl]
+
+  ; Draw the ship, clockwise from top left.
+  ; (TODO DMA; adds sprites to OAM directly, for now)
+  ; (TODO use variables instead of addresses)
+  ld hl, $fe00
+  ld [hl], b
+  inc l
+  ld [hl], c
+  inc l
+  ld [hl], $00; tile number
+
+  ld hl, $fe04
+  ld e, c
+  ld a, c
+  adc a, 8
+  ld c, a
+  ld [hl], b
+  inc l
+  ld [hl], c
+  inc l
+  ld [hl], $01; tile number
+
+  ld hl, $fe0c
+  ld a, b
+  adc a, 8
+  ld b, a
+  ld [hl], b
+  inc l
+  ld [hl], e
+  inc l
+  ld [hl], $02; tile number
+
+  ld hl, $fe08
+  ld [hl], b
+  inc l
+  ld [hl], c
+  inc l
+  ld [hl], $03; tile number
   ret
