@@ -18,7 +18,7 @@ SECTION  "start", ROM0[$0100]
 
 INCLUDE "header.inc"
 
-SECTION "timer_vars", WRAM0[$C800]
+SECTION "timer_vars", WRAM0
 
 ; Whatever, just a counter
 COUNTER:: ds 1
@@ -31,7 +31,7 @@ GAME_STATE_GAME EQU $01
 SECTION "main", ROMX
 
 main::
-  nop  
+  nop
   jp start_splash
 
 ; See http://gameboy.mongenel.com/dmg/timer.txt
