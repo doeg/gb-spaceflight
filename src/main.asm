@@ -31,7 +31,7 @@ GAME_STATE_GAME EQU $01
 SECTION "main", ROMX
 
 main::
-  nop
+  nop  
   jp start_splash
 
 ; See http://gameboy.mongenel.com/dmg/timer.txt

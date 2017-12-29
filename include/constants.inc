@@ -1,3 +1,9 @@
+
+pHRAM EQU $ff80
+pHRAM_END EQU $fffe
+pSTACK  EQU $fffe ; alias for pHMEM_END
+pINTERRUPT_ENABLE EQU $ffff
+
 ; All addresses are documented in the pandocs:
 ; http://gameboy.mongenel.com/dmg/gbspec.txt
 
