@@ -12,40 +12,6 @@ INCLUDE "constants.inc"
 INCLUDE "ibmpc1.inc"
 INCLUDE "macros.inc"
 
-init_splash::
-  ; Disable interrupts while we manipulate VRAM
-  di
-
-  ; Clear the screen
-  ld B, $16
-  _RESET_
-  call clear_joypad
-
-  ; Initialize splash data
-  call wait_vblank
-  call lcd_off
-  call load_splash_data
-  call lcd_on
-
-  di
-  ; Enable timer, vblank, and joypad interrupts
-  ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
-  ld [rIE], a
-
-  ; Initialize the interrupt counter to 0
-  ld a, 0
-  ld [COUNTER], a
-
-  ; Initialize timer code
-  call init_timer
-
-  ; Set the game state
-  ld a, $00
-  ld [GAME_STATE], a
-
-  ; Enable interrupts
-  ei
-
 update_splash::
   call read_joypad
   ld hl, IO_P15
