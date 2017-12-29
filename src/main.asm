@@ -18,8 +18,6 @@ SECTION  "start", ROM0[$0100]
 
 INCLUDE "header.inc"
 
-
-
 SECTION "timer_vars", WRAM0[$C800]
 
 ; Whatever, just a counter
