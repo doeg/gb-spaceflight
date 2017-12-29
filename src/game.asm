@@ -13,8 +13,30 @@ SHIP_Y: ds 1
 SECTION "game", ROMX
 
 INCLUDE "constants.inc"
+INCLUDE "macros.inc"
 INCLUDE "bg_space_map.inc"
 INCLUDE "ship_map.inc"
+
+start_game::
+  di
+  ld B, $00 ; clear tile id
+  _RESET_
+  call clear_joypad
+  call wait_vblank
+  call lcd_off
+
+  ; Set the X/Y scroll registers to the upper left of the tile map
+  ld a, 50
+  ld [LCD_SCROLL_X], a
+  ld [LCD_SCROLL_Y], a
+  ; Change the game state
+  ld a, $01
+  ld [GAME_STATE], a
+
+  call load_game_data
+  call lcd_on
+  ei
+  jp run_game_loop
 
 handle_game_timer_interrupt::
   push af

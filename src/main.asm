@@ -18,9 +18,7 @@ SECTION  "start", ROM0[$0100]
 
 INCLUDE "header.inc"
 
-
-
-SECTION "timer_vars", WRAM0[$C800]
+SECTION "timer_vars", WRAM0
 
 ; Whatever, just a counter
 COUNTER:: ds 1
@@ -35,66 +33,6 @@ SECTION "main", ROMX
 main::
   nop
   jp start_splash
-
-start_splash::
-  ; Disable interrupts while we manipulate VRAM
-  di
-
-  ; Clear the screen
-  ld B, $16
-  _RESET_
-  call clear_joypad
-
-  ; Initialize splash data
-  call wait_vblank
-  call lcd_off
-  call load_splash_data
-  call lcd_on
-
-  di
-  ; Enable timer, vblank, and joypad interrupts
-  ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
-  ld [rIE], a
-
-  ; Initialize the interrupt counter to 0
-  ld a, 0
-  ld [COUNTER], a
-
-  ; Initialize timer code
-  call init_timer
-
-  ; Set the game state
-  ld a, GAME_STATE_SPLASH
-  ld [GAME_STATE], a
-
-  ; Enable interrupts
-  ei
-
-.splash_loop:
-  call wait_vblank
-  call update_splash
-  jr .splash_loop
-
-start_game::
-  di
-  ld B, $00 ; clear tile id
-  _RESET_
-  call clear_joypad
-  call wait_vblank
-  call lcd_off
-
-  ; Set the X/Y scroll registers to the upper left of the tile map
-  ld a, 50
-  ld [LCD_SCROLL_X], a
-  ld [LCD_SCROLL_Y], a
-  ; Change the game state
-  ld a, GAME_STATE_GAME
-  ld [GAME_STATE], a
-
-  call load_game_data
-  call lcd_on
-  ei
-  jp run_game_loop
 
 ; See http://gameboy.mongenel.com/dmg/timer.txt
 init_timer::
