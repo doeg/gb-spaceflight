@@ -1,3 +1,19 @@
+; Constants prefixed with "p" are pointers (addresses)
+; to a memory location; e.g., pHRAM.
+;
+; When a range of addresses is given by two constants,
+; that range is inclusive. (e.g., pOAM, pOAM_END).
+;
+; Addresses are organized from lowest ($0000)
+; to highest ($0000).
+;
+; Resources:
+;   - http://gameboy.mongenel.com/dmg/asmmemmap.html
+;   - http://gameboy.mongenel.com/dmg/gbspec.txt
+
+; OAM (object attribute memory, a.k.a. the sprite
+; attribute table). This is mirrored by the range
+; beginning at pSHADOW_OAM. 
 pOAM EQU $fe00
 pOAM_END EQU $fe9f
 
