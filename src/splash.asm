@@ -1,10 +1,11 @@
 SECTION "splash_variables", WRAM0
-
 variables_start:
+FLICKER_COUNTER:: ds 1
+variables_end:
+
 ; horizontal (x) and vertical (y) offset of the prompt
 PROMPT_X EQU $40
 PROMPT_Y EQU $80
-variables_end:
 
 SECTION "splash", ROMX
 
@@ -23,19 +24,18 @@ start_splash::
   call load_splash_data
 
   ; Enable timer, vblank, and joypad interrupts
+  call init_timer
   ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
   ld [pINTERRUPT_ENABLE], a
-
-  ; Initialize the interrupt counter to 0
-  ; ld a, 0
-  ; ld [COUNTER], a
-
-  ; Initialize timer code
-  ; call init_timer
 
   ; Set the game state
   xor a
   ld [GAME_STATE], a
+
+  xor a
+  ld hl, variables_start
+  ld bc, variables_end - variables_start + 1 ; FIXME +1 needed?
+  call mem_set
 
   call lcd_on
   ei
@@ -226,35 +226,34 @@ load_splash_data::
   ld BC, splash_map_data + ($14 * $11)
   ld HL, $9E20
   call memcpy
-
   ret
 
-; handle_splash_timer_interrupt::
-;   push af
-;   push hl
-;
-;   ld a, [COUNTER]
-;   cp $0
-;   jr z, .hide_prompt
-;
-; .show_prompt:
-;   ld hl, pOBJ0_PAL
-;   ld [hl], %11100100
-;   ld a, 0
-;   ld [COUNTER], a
-;   jr .done
-;
-; .hide_prompt:
-;   ld hl, pOBJ0_PAL
-;   ld [hl], %00011011
-;   ld a, 1
-;   ld [COUNTER], a
-;   jr .done
-;
-; .done:
-;   pop hl
-;   pop af
-;   ret
+handle_splash_timer_interrupt::
+  push af
+  push hl
+
+  ld a, [FLICKER_COUNTER]
+  cp $0
+  jr z, .hide_prompt
+
+.show_prompt:
+  ld hl, pOBJ0_PAL
+  ld [hl], %11100100
+  xor a
+  ld [FLICKER_COUNTER], a
+  jr .done
+
+.hide_prompt:
+  ld hl, pOBJ0_PAL
+  ld [hl], %00011011
+  ld a, 1
+  ld [FLICKER_COUNTER], a
+  jr .done
+
+.done:
+  pop hl
+  pop af
+  ret
 
 ; and initialise the ascii tileset
 ascii:
