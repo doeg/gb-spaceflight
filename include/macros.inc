@@ -1,4 +1,5 @@
 _RESET_: MACRO
+  di
   ld SP, pSTACK
 
   ; Clear HRAM. -2 to save room for the stack,
@@ -17,12 +18,14 @@ _RESET_: MACRO
   ld bc, $A0 ; the full size of the OAM area: 40 bytes, 4 bytes per sprite
   call mem_set
 
+  call init_dma
+
   call clear_bg_map
   call lcd_on
 
   ; TODO clear shadow OAM. No need to wait for vblank.
 
-  ; Reset the viewport to the top-left corner. 
+  ; Reset the viewport to the top-left corner.
   ld HL, pLCD_SCROLL_Y
   ld [HL], $00
   ld HL, pLCD_SCROLL_X
@@ -30,4 +33,9 @@ _RESET_: MACRO
 
   call clear_joypad
 
+  ; Enable timer, vblank, and joypad interrupts
+  ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
+  ld [pINTERRUPT_ENABLE], a
+
+  ei  
   ENDM
