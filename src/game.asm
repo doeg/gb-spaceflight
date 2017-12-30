@@ -41,26 +41,23 @@ start_game::
   jr .game_loop
 
 handle_game_timer_interrupt::
+  call update_background
+  reti
+
+update_background::
   push af
   ld a, [INTERRUPT_COUNTER]
   dec a
   jp nz, .finish
 
-  ; If zero, move the window and reset the counter
-  call motion_update
+  ; If zero, move the viewport and reset the counter
+  ld a, [pLCD_SCROLL_Y]
+  sbc a, 1
+  ld [pLCD_SCROLL_Y], a
   ld a, DEFAULT_INTERRUPT_COUNTER
 
 .finish:
   ld [INTERRUPT_COUNTER], a
-  pop af
-  reti
-
-; Scrolls the starfield background
-motion_update::
-  push af
-  ld a, [pLCD_SCROLL_Y]
-  sbc a, 1
-  ld [pLCD_SCROLL_Y], a
   pop af
   ret
 
