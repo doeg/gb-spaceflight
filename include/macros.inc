@@ -19,6 +19,8 @@ _RESET_: MACRO
   call mem_set
 
   ; TODO clear OAM
-  ; TODO clear shadow OAM 
+  ; TODO clear shadow OAM
+
+  call clear_joypad
 
   ENDM

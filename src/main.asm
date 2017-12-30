@@ -38,11 +38,8 @@ start_splash::
   ; Disable interrupts while we manipulate VRAM
   di
 
-  ; Clear the screen
-  ld B, $16
 reset_splash::
   _RESET_
-  call clear_joypad
 
   ; Initialize splash data
   call wait_vblank
@@ -76,9 +73,7 @@ reset_splash::
 
 start_game::
   di
-  ld B, $00 ; clear tile id
   _RESET_
-  call clear_joypad
   call wait_vblank
   call lcd_off
 
