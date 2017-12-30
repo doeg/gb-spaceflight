@@ -55,7 +55,6 @@ timer_handler::
   ld a, [GAME_STATE]
   cp $0
   call z, handle_splash_timer_interrupt
-  ; FIXME uncomment when game timer code is added.
   cp $1
   call z, handle_game_timer_interrupt
   pop af
@@ -95,20 +94,12 @@ clear_oam::
   pop af
   ret
 
+; Calls the timer interrupt 64 times a second
+; Uses the 4096 MHz timer with a modulo of 5.
 ; See http://gameboy.mongenel.com/dmg/timer.txt
 init_timer::
-  ; Set up a timer modulo
-  ld a, 10
-  ; Write the timer modulo to the TMA register
-  ; when the timer overflows it will be reset to this value
+  ld a, -32
   ld [pTMA], a
-
-  ; Set up a timer control bitmask.
-  ;   TACF_START -> bit 2 high -> start the timer
-  ; We want the timer to run at 4KHz
-  ;   TACF_4KHZ -> bit 1 and bit 0 low -> 4096 hz timer
-  ld a, TACF_START|TACF_4KHZ
-
-  ; $FF07 (TAC) selects the clock frequency. You set it to 4 for a frequency of 4.096Khz
+  ld a, 4
   ld [pTAC], a
   ret

@@ -4,11 +4,7 @@ SECTION "game_vars", WRAM0
 ; Controls the draw rate by overflowing when a frame
 ; is to be animated.
 INTERRUPT_COUNTER: ds 1
-DEFAULT_INTERRUPT_COUNTER EQU $01
-
-; Dynamic ship x position
-SHIP_X: ds 1
-SHIP_Y: ds 1
+DEFAULT_INTERRUPT_COUNTER EQU $1
 
 SECTION "game", ROMX
 
@@ -41,30 +37,26 @@ start_game::
   ei
 
 .game_loop:
-  call draw_ship
   jr .game_loop
 
 handle_game_timer_interrupt::
+  call update_background
+  call update_ship
+  reti
+
+update_background::
   push af
   ld a, [INTERRUPT_COUNTER]
   dec a
   jp nz, .finish
-
-  ; If zero, move the window and reset the counter
-  call motion_update
+  ; If zero, move the viewport and reset the counter
+  ld a, [pLCD_SCROLL_Y]
+  sbc a, 2
+  ld [pLCD_SCROLL_Y], a
   ld a, DEFAULT_INTERRUPT_COUNTER
 
 .finish:
   ld [INTERRUPT_COUNTER], a
-  pop af
-  reti
-
-; Scrolls the starfield background
-motion_update::
-  push af
-  ld a, [pLCD_SCROLL_Y]
-  sbc a, 1
-  ld [pLCD_SCROLL_Y], a
   pop af
   ret
 
@@ -82,13 +74,6 @@ load_game_data::
   ; TODO just zero the whole variables blockw
   ld a, DEFAULT_INTERRUPT_COUNTER
   ld [INTERRUPT_COUNTER], a
-
-  ; Initialize the ship's position
-  ld a, $50
-  ld [SHIP_X], a
-
-  ld a, $80
-  ld [SHIP_Y], a
 
   ; Set palettes
   ld hl, pLCD_BG_PAL
@@ -115,7 +100,7 @@ load_game_data::
   call memcpy
 
   call load_all_tiles
-  call draw_ship
+  call init_ship
   ret
 
 load_all_tiles:
@@ -123,50 +108,4 @@ load_all_tiles:
   ld bc, bg_space_map_data ;src
   ld hl, $9C00 ;dest
   call memcpy
-  ret
-
-draw_ship::
-  ; Load the ship's position into registers
-  ld hl, SHIP_Y
-  ld b, [hl]
-  ld hl, SHIP_X
-  ld c, [hl]
-
-  ; Draw the ship, clockwise from top left.
-  ; (TODO DMA; adds sprites to OAM directly, for now)
-  ; (TODO use variables instead of addresses)
-  ld hl, pSHADOW_OAM
-  ld [hl], b
-  inc l
-  ld [hl], c
-  inc l
-  ld [hl], $00; tile number
-
-  ld hl, pSHADOW_OAM + $04
-  ld e, c
-  ld a, c
-  adc a, 8
-  ld c, a
-  ld [hl], b
-  inc l
-  ld [hl], c
-  inc l
-  ld [hl], $01; tile number
-
-  ld hl, pSHADOW_OAM + $0c
-  ld a, b
-  adc a, 8
-  ld b, a
-  ld [hl], b
-  inc l
-  ld [hl], e
-  inc l
-  ld [hl], $02; tile number
-
-  ld hl, pSHADOW_OAM + $08
-  ld [hl], b
-  inc l
-  ld [hl], c
-  inc l
-  ld [hl], $03; tile number
   ret
