@@ -25,6 +25,7 @@ INCLUDE "header.inc"
 SECTION "variables", WRAM0, ALIGN[2]
 variables_start:
 SHADOW_OAM:: ds 40 * 4
+GAME_STATE:: ds 1
 variables_end:
 
 SECTION "main", ROMX
@@ -32,6 +33,11 @@ SECTION "main", ROMX
 main::
   nop
   _RESET_
+
+  ; Clear the game state 
+  xor a
+  ld [GAME_STATE], a
+
   jp start_splash
 
 ; Copies the DMA handler code to HRAM

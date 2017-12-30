@@ -34,8 +34,8 @@ start_splash::
   ; call init_timer
 
   ; Set the game state
-  ; ld a, $00
-  ; ld [GAME_STATE], a
+  xor a
+  ld [GAME_STATE], a
 
   call lcd_on
   ei
