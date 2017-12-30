@@ -19,22 +19,30 @@ INCLUDE "ship_map.inc"
 
 start_game::
   di
-  _RESET_
   call wait_vblank
   call lcd_off
+  call clear_oam
+  call clear_bg_map
+  ; Reset the viewport to the top-left corner.
+  ; TODO refactor into function
+  ld HL, pLCD_SCROLL_Y
+  ld [HL], $00
+  ld HL, pLCD_SCROLL_X
+  ld [HL], $00
+  call clear_joypad
 
-  ; Set the X/Y scroll registers to the upper left of the tile map
-  ld a, 50
-  ld [pLCD_SCROLL_X], a
-  ld [pLCD_SCROLL_Y], a
-  ; Change the game state
+  ; Update game state
   ld a, $01
   ld [GAME_STATE], a
 
   call load_game_data
+
   call lcd_on
   ei
-  jp run_game_loop
+
+.game_loop:
+  call draw_ship
+  jr .game_loop
 
 handle_game_timer_interrupt::
   push af
@@ -43,7 +51,6 @@ handle_game_timer_interrupt::
   jp nz, .finish
 
   ; If zero, move the window and reset the counter
-  call wait_vblank
   call motion_update
   ld a, DEFAULT_INTERRUPT_COUNTER
 
@@ -52,52 +59,14 @@ handle_game_timer_interrupt::
   pop af
   reti
 
+; Scrolls the starfield background
 motion_update::
   push af
   ld a, [pLCD_SCROLL_Y]
   sbc a, 1
   ld [pLCD_SCROLL_Y], a
-
   pop af
   ret
-
-run_game_loop::
-  ; Detect motion
-  call read_joypad
-  ld hl, IO_P14
-  bit BUTTON_LEFT, [hl]
-  jp z, move_left
-  bit BUTTON_RIGHT, [hl]
-  jp z, move_right
-  jp game_draw
-
-move_left::
-  ld a, [SHIP_X]
-  sbc a, 2
-  ld [SHIP_X], a
-
-  ld a, [pLCD_SCROLL_X]
-  sbc a, 1
-  ld [pLCD_SCROLL_X], a
-
-  jp game_draw
-
-move_right::
-  ld a, [SHIP_X]
-  adc a, 2
-  ld [SHIP_X], a
-
-  ld a, [pLCD_SCROLL_X]
-  adc a, 1
-  ld [pLCD_SCROLL_X], a
-
-  jp game_draw
-
-game_draw::
-  call clear_joypad
-  call wait_vblank
-  call draw_ship
-  jr run_game_loop
 
 load_game_data::
   ; Configure LCD
@@ -166,14 +135,14 @@ draw_ship::
   ; Draw the ship, clockwise from top left.
   ; (TODO DMA; adds sprites to OAM directly, for now)
   ; (TODO use variables instead of addresses)
-  ld hl, $fe00
+  ld hl, pSHADOW_OAM
   ld [hl], b
   inc l
   ld [hl], c
   inc l
   ld [hl], $00; tile number
 
-  ld hl, $fe04
+  ld hl, pSHADOW_OAM + $04
   ld e, c
   ld a, c
   adc a, 8
@@ -184,7 +153,7 @@ draw_ship::
   inc l
   ld [hl], $01; tile number
 
-  ld hl, $fe0c
+  ld hl, pSHADOW_OAM + $0c
   ld a, b
   adc a, 8
   ld b, a
@@ -194,7 +163,7 @@ draw_ship::
   inc l
   ld [hl], $02; tile number
 
-  ld hl, $fe08
+  ld hl, pSHADOW_OAM + $08
   ld [hl], b
   inc l
   ld [hl], c

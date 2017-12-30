@@ -33,6 +33,9 @@ pVRAM_TILES_BACKGROUND   EQU $9000
 pVRAM_MAP_CHR            EQU $9800
 pVRAM_MAP_BG             EQU $9c00
 
+pSHADOW_OAM              EQU $c000
+pSHADOW_OAM_END          EQU $c09f
+
 ; OAM (object attribute memory, a.k.a. the sprite
 ; attribute table). This is mirrored by the range
 ; beginning at pSHADOW_OAM.
@@ -93,6 +96,7 @@ pWIN_X                   EQU $ff4b
 
 ; High RAM, (a.k.a. high memory, HMEM)
 pHRAM                    EQU $ff80
+pVBLANK_HANDLER          EQU $ff80
 pHRAM_END                EQU $fffe
 pSTACK                   EQU pHRAM_END
 

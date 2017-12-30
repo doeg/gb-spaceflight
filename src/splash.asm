@@ -1,6 +1,8 @@
 SECTION "splash_variables", WRAM0
-
 variables_start:
+FLICKER_COUNTER:: ds 1
+variables_end:
+
 ; horizontal (x) and vertical (y) offset of the prompt
 PROMPT_X EQU $40
 PROMPT_Y EQU $80
@@ -15,33 +17,27 @@ INCLUDE "macros.inc"
 start_splash::
   ; Disable interrupts while we manipulate VRAM
   di
-
-reset_splash::
-  _RESET_
-
-  ; Initialize splash data
   call wait_vblank
   call lcd_off
-  call load_splash_data
-  call lcd_on
 
-  di
+  ; Initialize splash data
+  call load_splash_data
+
   ; Enable timer, vblank, and joypad interrupts
+  call init_timer
   ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
   ld [pINTERRUPT_ENABLE], a
 
-  ; Initialize the interrupt counter to 0
-  ld a, 0
-  ld [COUNTER], a
-
-  ; Initialize timer code
-  call init_timer
-
   ; Set the game state
-  ld a, $00
+  xor a
   ld [GAME_STATE], a
 
-  ; Enable interrupts
+  xor a
+  ld hl, variables_start
+  ld bc, variables_end - variables_start + 1 ; FIXME +1 needed?
+  call mem_set
+
+  call lcd_on
   ei
 
 .splash_loop:
@@ -92,7 +88,7 @@ load_splash_data::
   call mem_copy_mono
 
   ; P
-  ld HL, $FE00 + ($04 * 0)
+  ld HL, pSHADOW_OAM + ($04 * 0)
   ld [hl], PROMPT_Y ;y
   inc l
   ld [hl], PROMPT_X + ($8 * 0) ; x
@@ -100,7 +96,7 @@ load_splash_data::
   ld [hl], $10 ; tile number
 
   ; R
-  ld HL, $FE00 + ($04 * 1)
+  ld HL, pSHADOW_OAM + ($04 * 1)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 1) ; x
@@ -108,7 +104,7 @@ load_splash_data::
   ld [hl], $12 ; tile number
 
   ; E
-  ld HL, $FE00 + ($04 * 2)
+  ld HL, pSHADOW_OAM + ($04 * 2)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 2) ; x
@@ -116,7 +112,7 @@ load_splash_data::
   ld [hl], $05 ; tile number
 
   ; S
-  ld HL, $FE00 + ($04 * 3)
+  ld HL, pSHADOW_OAM + ($04 * 3)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 3) ; x
@@ -124,7 +120,7 @@ load_splash_data::
   ld [hl], $13 ; tile number
 
   ; S
-  ld HL, $FE00 + ($04 * 4)
+  ld HL, pSHADOW_OAM + ($04 * 4)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 4) ; x
@@ -132,7 +128,7 @@ load_splash_data::
   ld [hl], $13 ; tile number
 
   ; A
-  ld HL, $FE00 + ($04 * 5)
+  ld HL, pSHADOW_OAM + ($04 * 5)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 6) ; x
@@ -143,11 +139,9 @@ load_splash_data::
 
 .load_splash_tiles:
   ; We just load every line by hand.
-  ld DE, $15
-  ld BC, splash_map_data + ($14 * $0)
-  ld HL, $9C00
-  call memcpy
-
+  ; FIXME simply using splash_tile_map_size as bytecount
+  ; messes up the rows since they're not padded
+  ; (or something...)
   ld DE, $15
   ld BC, splash_map_data + ($14 * $1)
   ld HL, $9C20
@@ -232,29 +226,28 @@ load_splash_data::
   ld BC, splash_map_data + ($14 * $11)
   ld HL, $9E20
   call memcpy
-
   ret
 
 handle_splash_timer_interrupt::
   push af
   push hl
 
-  ld a, [COUNTER]
+  ld a, [FLICKER_COUNTER]
   cp $0
   jr z, .hide_prompt
 
 .show_prompt:
   ld hl, pOBJ0_PAL
   ld [hl], %11100100
-  ld a, 0
-  ld [COUNTER], a
+  xor a
+  ld [FLICKER_COUNTER], a
   jr .done
 
 .hide_prompt:
   ld hl, pOBJ0_PAL
   ld [hl], %00011011
   ld a, 1
-  ld [COUNTER], a
+  ld [FLICKER_COUNTER], a
   jr .done
 
 .done:
