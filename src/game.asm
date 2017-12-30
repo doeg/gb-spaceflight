@@ -48,7 +48,6 @@ handle_game_timer_interrupt::
   jp nz, .finish
 
   ; If zero, move the window and reset the counter
-  call wait_vblank
   call motion_update
   ld a, DEFAULT_INTERRUPT_COUNTER
 
@@ -57,12 +56,12 @@ handle_game_timer_interrupt::
   pop af
   reti
 
+; Scrolls the starfield background
 motion_update::
   push af
   ld a, [pLCD_SCROLL_Y]
   sbc a, 1
   ld [pLCD_SCROLL_Y], a
-
   pop af
   ret
 
@@ -100,7 +99,6 @@ move_right::
 
 game_draw::
   call clear_joypad
-  call wait_vblank
   call draw_ship
   jr run_game_loop
 
@@ -171,14 +169,14 @@ draw_ship::
   ; Draw the ship, clockwise from top left.
   ; (TODO DMA; adds sprites to OAM directly, for now)
   ; (TODO use variables instead of addresses)
-  ld hl, $fe00
+  ld hl, pSHADOW_OAM
   ld [hl], b
   inc l
   ld [hl], c
   inc l
   ld [hl], $00; tile number
 
-  ld hl, $fe04
+  ld hl, pSHADOW_OAM + $04
   ld e, c
   ld a, c
   adc a, 8
@@ -189,7 +187,7 @@ draw_ship::
   inc l
   ld [hl], $01; tile number
 
-  ld hl, $fe0c
+  ld hl, pSHADOW_OAM + $0c
   ld a, b
   adc a, 8
   ld b, a
@@ -199,7 +197,7 @@ draw_ship::
   inc l
   ld [hl], $02; tile number
 
-  ld hl, $fe08
+  ld hl, pSHADOW_OAM + $08
   ld [hl], b
   inc l
   ld [hl], c
