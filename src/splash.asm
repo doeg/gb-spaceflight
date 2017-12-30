@@ -28,7 +28,7 @@ reset_splash::
   di
   ; Enable timer, vblank, and joypad interrupts
   ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
-  ld [rIE], a
+  ld [pINTERRUPT_ENABLE], a
 
   ; Initialize the interrupt counter to 0
   ld a, 0
@@ -58,7 +58,7 @@ update_splash::
 
 load_splash_data::
   ; Configure LCD
-  ld HL, LCD_CTRL
+  ld HL, pLCD_CTRL
   ; Reset OBJ (Sprite) Display (0: off)
   set 1, [HL]
   ; Set BG Tile Map Display Select (1: $9C00-$9FFF)
@@ -68,17 +68,17 @@ load_splash_data::
 
   ; Invert background & OBJ0 palette
   ; (so that the background is white text, black bc)
-  ld hl, LCD_BG_PAL
+  ld hl, pLCD_BG_PAL
   LD [hl], %00011011
-  ld hl, OBJ0_PAL
+  ld hl, pOBJ0_PAL
   ld [hl], %00011011
-  ld hl, OBJ1_PAL
+  ld hl, pOBJ1_PAL
   ld [hl], %00011011
 
   ; load top tile map to vram (background)
   ld DE, splash_tile_data_size
   ld BC, splash_tile_data
-  ld HL, VRAM_TILES_BACKGROUND
+  ld HL, pVRAM_TILES_BACKGROUND
   call memcpy
 
   ; Load tile data
@@ -87,7 +87,7 @@ load_splash_data::
   ; Prompt text.
   ; Load the ASCII tileset into sprite memory
   ld hl, ascii
-  ld de, VRAM_TILES_SPRITE
+  ld de, pVRAM_TILES_SPRITE
   ld bc, 31 * 8 ;
   call mem_copy_mono
 
@@ -246,14 +246,14 @@ handle_splash_timer_interrupt::
   jr z, .hide_prompt
 
 .show_prompt:
-  ld hl, OBJ0_PAL
+  ld hl, pOBJ0_PAL
   ld [hl], %11100100
   ld a, 0
   ld [COUNTER], a
   jr .done
 
 .hide_prompt:
-  ld hl, OBJ0_PAL
+  ld hl, pOBJ0_PAL
   ld [hl], %00011011
   ld a, 1
   ld [COUNTER], a

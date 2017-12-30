@@ -5,19 +5,19 @@ SECTION "lcd", ROMX
 INCLUDE "constants.inc"
 
 lcd_off::
-  ld HL, LCD_CTRL
+  ld HL, pLCD_CTRL
   res 7, [HL]
   ret
 
 lcd_on::
-  ld HL, LCD_CTRL
+  ld HL, pLCD_CTRL
   set 7, [HL]
   ret
 
 wait_vblank::
   push af
 .vblank_loop:
-  ld A, [LCD_LINE_Y]
+  ld A, [pLCD_LINE_Y]
   cp 144
   jr nz, .vblank_loop
   pop af
