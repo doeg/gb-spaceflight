@@ -12,6 +12,7 @@ SECTION  "Serial", ROM0[$0058]
 SECTION  "p1thru4", ROM0[$0060]
   reti
 
+; Point-of-entry
 SECTION  "start", ROM0[$0100]
   nop
   jp main
@@ -30,6 +31,7 @@ GAME_STATE_GAME EQU $01
 
 SECTION "main", ROMX
 
+; Program start! 
 main::
   nop
   jp start_splash
