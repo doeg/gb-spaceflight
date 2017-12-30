@@ -129,9 +129,6 @@ load_game_data::
   ld hl, pOBJ1_PAL
   ld [hl], %00000000
 
-  ; Clear OAM
-  call clear_oam
-
   ; de - block size
   ; bc - source address
   ; hl - destination address

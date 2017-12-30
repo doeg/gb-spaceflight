@@ -23,6 +23,7 @@ wait_vblank::
   pop af
   ret
 
+; FIXME this doesn't push/pop hl & af
 clear_bg_map::
   ld HL, $9C00
 
