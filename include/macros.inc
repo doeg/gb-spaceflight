@@ -12,18 +12,11 @@ _RESET_: MACRO
   call wait_vblank
   call lcd_off
 
-  ; Clear OAM
-  xor a
-  ld hl, $FE00 ; start of OAM
-  ld bc, $A0 ; the full size of the OAM area: 40 bytes, 4 bytes per sprite
-  call mem_set
-
+  call clear_oam
   call init_dma
 
   call clear_bg_map
   call lcd_on
-
-  ; TODO clear shadow OAM. No need to wait for vblank.
 
   ; Reset the viewport to the top-left corner.
   ld HL, pLCD_SCROLL_Y
@@ -37,5 +30,5 @@ _RESET_: MACRO
   ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
   ld [pINTERRUPT_ENABLE], a
 
-  ei  
+  ei
   ENDM
