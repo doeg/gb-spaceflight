@@ -19,19 +19,24 @@ INCLUDE "ship_map.inc"
 
 start_game::
   di
-  _RESET_
   call wait_vblank
   call lcd_off
+  call clear_oam
+  call clear_bg_map
+  ; Reset the viewport to the top-left corner.
+  ; TODO refactor into function
+  ld HL, pLCD_SCROLL_Y
+  ld [HL], $00
+  ld HL, pLCD_SCROLL_X
+  ld [HL], $00
+  call clear_joypad
 
-  ; Set the X/Y scroll registers to the upper left of the tile map
-  ld a, 50
-  ld [pLCD_SCROLL_X], a
-  ld [pLCD_SCROLL_Y], a
-  ; Change the game state
+  ; Update game state
   ld a, $01
   ld [GAME_STATE], a
 
   call load_game_data
+
   call lcd_on
   ei
   jp run_game_loop

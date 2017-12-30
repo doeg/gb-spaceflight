@@ -47,9 +47,9 @@ start_splash::
 
 update_splash::
   call read_joypad
-  ; ld hl, IO_P15
-  ; bit BUTTON_A, [hl]
-  ; jp z, start_game
+  ld hl, IO_P15
+  bit BUTTON_A, [hl]
+  jp z, start_game
   ret
 
 load_splash_data::

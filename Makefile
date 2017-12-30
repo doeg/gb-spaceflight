@@ -10,7 +10,8 @@ SOURCES = \
 	src/joypad.asm \
 	src/lcd.asm \
 	src/memory.asm \
-	src/splash.asm
+	src/splash.asm \
+	src/game.asm
 
 FIX_FLAGS = -v -p 0
 

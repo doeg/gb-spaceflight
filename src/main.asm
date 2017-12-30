@@ -56,8 +56,8 @@ timer_handler::
   cp $0
   call z, handle_splash_timer_interrupt
   ; FIXME uncomment when game timer code is added.
-  ; cp $1
-  ; call z, handle_game_timer_interrupt
+  cp $1
+  call z, handle_game_timer_interrupt
   pop af
   reti
 

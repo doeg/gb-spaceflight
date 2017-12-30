@@ -19,6 +19,7 @@ _RESET_: MACRO
   call lcd_on
 
   ; Reset the viewport to the top-left corner.
+  ; TODO refactor into function
   ld HL, pLCD_SCROLL_Y
   ld [HL], $00
   ld HL, pLCD_SCROLL_X
