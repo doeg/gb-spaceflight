@@ -4,6 +4,7 @@ variables_start:
 ; horizontal (x) and vertical (y) offset of the prompt
 PROMPT_X EQU $40
 PROMPT_Y EQU $80
+variables_end:
 
 SECTION "splash", ROMX
 
@@ -138,11 +139,9 @@ load_splash_data::
 
 .load_splash_tiles:
   ; We just load every line by hand.
-  ld DE, $15
-  ld BC, splash_map_data + ($14 * $0)
-  ld HL, $9C00
-  call memcpy
-
+  ; FIXME simply using splash_tile_map_size as bytecount
+  ; messes up the rows since they're not padded
+  ; (or something...)
   ld DE, $15
   ld BC, splash_map_data + ($14 * $1)
   ld HL, $9C20
