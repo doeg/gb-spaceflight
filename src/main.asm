@@ -32,11 +32,7 @@ SECTION "main", ROMX
 main::
   nop
   _RESET_
-
-.loop:
-  nop
-  nop
-  jr .loop
+  jp start_splash
 
 ; Copies the DMA handler code to HRAM
 init_dma::
@@ -67,11 +63,18 @@ clear_oam::
   push af
   push hl
   push bc
+
   xor a
   ld hl, $FE00 ; start of OAM
   ld bc, $A0 ; the full size of the OAM area: 40 bytes, 4 bytes per sprite
   call mem_set
+
+  xor a
+  ld hl, pSHADOW_OAM
+  ld bc, pSHADOW_OAM_END - pSHADOW_OAM
+  call mem_set
+
   pop bc
   pop hl
-  pop af 
+  pop af
   ret

@@ -9,8 +9,9 @@ SOURCES = \
 	src/main.asm \
 	src/joypad.asm \
 	src/lcd.asm \
-	src/memory.asm
-	
+	src/memory.asm \
+	src/splash.asm
+
 FIX_FLAGS = -v -p 0
 
 INCDIR = include

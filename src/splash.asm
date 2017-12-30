@@ -15,33 +15,28 @@ INCLUDE "macros.inc"
 start_splash::
   ; Disable interrupts while we manipulate VRAM
   di
-
-reset_splash::
-  _RESET_
-
-  ; Initialize splash data
   call wait_vblank
   call lcd_off
-  call load_splash_data
-  call lcd_on
 
-  di
+  ; Initialize splash data
+  call load_splash_data
+
   ; Enable timer, vblank, and joypad interrupts
   ld a, IEF_TIMER | IEF_VBLANK | IEF_HILO
   ld [pINTERRUPT_ENABLE], a
 
   ; Initialize the interrupt counter to 0
-  ld a, 0
-  ld [COUNTER], a
+  ; ld a, 0
+  ; ld [COUNTER], a
 
   ; Initialize timer code
-  call init_timer
+  ; call init_timer
 
   ; Set the game state
-  ld a, $00
-  ld [GAME_STATE], a
+  ; ld a, $00
+  ; ld [GAME_STATE], a
 
-  ; Enable interrupts
+  call lcd_on
   ei
 
 .splash_loop:
@@ -51,9 +46,9 @@ reset_splash::
 
 update_splash::
   call read_joypad
-  ld hl, IO_P15
-  bit BUTTON_A, [hl]
-  jp z, start_game
+  ; ld hl, IO_P15
+  ; bit BUTTON_A, [hl]
+  ; jp z, start_game
   ret
 
 load_splash_data::
@@ -92,7 +87,7 @@ load_splash_data::
   call mem_copy_mono
 
   ; P
-  ld HL, $FE00 + ($04 * 0)
+  ld HL, pSHADOW_OAM + ($04 * 0)
   ld [hl], PROMPT_Y ;y
   inc l
   ld [hl], PROMPT_X + ($8 * 0) ; x
@@ -100,7 +95,7 @@ load_splash_data::
   ld [hl], $10 ; tile number
 
   ; R
-  ld HL, $FE00 + ($04 * 1)
+  ld HL, pSHADOW_OAM + ($04 * 1)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 1) ; x
@@ -108,7 +103,7 @@ load_splash_data::
   ld [hl], $12 ; tile number
 
   ; E
-  ld HL, $FE00 + ($04 * 2)
+  ld HL, pSHADOW_OAM + ($04 * 2)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 2) ; x
@@ -116,7 +111,7 @@ load_splash_data::
   ld [hl], $05 ; tile number
 
   ; S
-  ld HL, $FE00 + ($04 * 3)
+  ld HL, pSHADOW_OAM + ($04 * 3)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 3) ; x
@@ -124,7 +119,7 @@ load_splash_data::
   ld [hl], $13 ; tile number
 
   ; S
-  ld HL, $FE00 + ($04 * 4)
+  ld HL, pSHADOW_OAM + ($04 * 4)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 4) ; x
@@ -132,7 +127,7 @@ load_splash_data::
   ld [hl], $13 ; tile number
 
   ; A
-  ld HL, $FE00 + ($04 * 5)
+  ld HL, pSHADOW_OAM + ($04 * 5)
   ld [hl], PROMPT_Y
   inc l
   ld [hl], PROMPT_X + ($8 * 6) ; x
@@ -235,32 +230,32 @@ load_splash_data::
 
   ret
 
-handle_splash_timer_interrupt::
-  push af
-  push hl
-
-  ld a, [COUNTER]
-  cp $0
-  jr z, .hide_prompt
-
-.show_prompt:
-  ld hl, pOBJ0_PAL
-  ld [hl], %11100100
-  ld a, 0
-  ld [COUNTER], a
-  jr .done
-
-.hide_prompt:
-  ld hl, pOBJ0_PAL
-  ld [hl], %00011011
-  ld a, 1
-  ld [COUNTER], a
-  jr .done
-
-.done:
-  pop hl
-  pop af
-  ret
+; handle_splash_timer_interrupt::
+;   push af
+;   push hl
+;
+;   ld a, [COUNTER]
+;   cp $0
+;   jr z, .hide_prompt
+;
+; .show_prompt:
+;   ld hl, pOBJ0_PAL
+;   ld [hl], %11100100
+;   ld a, 0
+;   ld [COUNTER], a
+;   jr .done
+;
+; .hide_prompt:
+;   ld hl, pOBJ0_PAL
+;   ld [hl], %00011011
+;   ld a, 1
+;   ld [COUNTER], a
+;   jr .done
+;
+; .done:
+;   pop hl
+;   pop af
+;   ret
 
 ; and initialise the ascii tileset
 ascii:
