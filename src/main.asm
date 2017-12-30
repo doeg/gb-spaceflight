@@ -42,7 +42,7 @@ init_timer::
   ld a, 10
   ; Write the timer modulo to the TMA register
   ; when the timer overflows it will be reset to this value
-  ld [rTMA], a
+  ld [pTMA], a
 
   ; Set up a timer control bitmask.
   ;   TACF_START -> bit 2 high -> start the timer
@@ -52,7 +52,7 @@ init_timer::
   ld a, TACF_START|TACF_4KHZ
 
   ; $FF07 (TAC) selects the clock frequency. You set it to 4 for a frequency of 4.096Khz
-  ld [rTAC], a
+  ld [pTAC], a
   ret
 
 timer_interrupt::

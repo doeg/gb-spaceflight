@@ -6,9 +6,9 @@ _RESET_: MACRO
   call clear_bg_map
   call lcd_on
 
-  ld HL, LCD_SCROLL_Y
+  ld HL, pLCD_SCROLL_Y
   ld [HL], $00
-  ld HL, LCD_SCROLL_X
+  ld HL, pLCD_SCROLL_X
   ld [HL], $00
 
   ; Clear HRAM. -2 to save room for the stack,

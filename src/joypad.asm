@@ -8,7 +8,7 @@ IO_P14_OLD:: DS 1
 IO_P15:: DS 1
 IO_P15_OLD:: DS 1
 
-; USER_IO                 EQU    $FF00
+; pUSER_IO                 EQU    $FF00
 ; NO_INPUT_P14            EQU    $EF      ; LEFT, RIGHT, UP, DOWN
 ; NO_INPUT_P15            EQU    $DF      ; A, B, SELECT, START
 
@@ -37,7 +37,7 @@ clear_joypad::
 ; to do an action only when the button was initially pressed.
 read_joypad::
   ; Read P14
-  ld HL, USER_IO
+  ld HL, pUSER_IO
   ld A, $20
   ld [HL], A
   ld A, [HL]
@@ -48,7 +48,7 @@ read_joypad::
   ld [HL], B
 
   ; Read P15
-  ld HL, USER_IO
+  ld HL, pUSER_IO
   ld A, $10
   ld [HL], A
   ld A, [HL]
@@ -59,7 +59,7 @@ read_joypad::
   ld [HL], B
 
   ; Reset
-  ld HL, USER_IO
+  ld HL, pUSER_IO
   ld A, $FF
   ld [HL], A
   ret

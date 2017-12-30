@@ -25,8 +25,8 @@ start_game::
 
   ; Set the X/Y scroll registers to the upper left of the tile map
   ld a, 50
-  ld [LCD_SCROLL_X], a
-  ld [LCD_SCROLL_Y], a
+  ld [pLCD_SCROLL_X], a
+  ld [pLCD_SCROLL_Y], a
   ; Change the game state
   ld a, $01
   ld [GAME_STATE], a
@@ -54,9 +54,9 @@ handle_game_timer_interrupt::
 
 motion_update::
   push af
-  ld a, [LCD_SCROLL_Y]
+  ld a, [pLCD_SCROLL_Y]
   sbc a, 1
-  ld [LCD_SCROLL_Y], a
+  ld [pLCD_SCROLL_Y], a
 
   pop af
   ret
@@ -76,9 +76,9 @@ move_left::
   sbc a, 2
   ld [SHIP_X], a
 
-  ld a, [LCD_SCROLL_X]
+  ld a, [pLCD_SCROLL_X]
   sbc a, 1
-  ld [LCD_SCROLL_X], a
+  ld [pLCD_SCROLL_X], a
 
   jp game_draw
 
@@ -87,9 +87,9 @@ move_right::
   adc a, 2
   ld [SHIP_X], a
 
-  ld a, [LCD_SCROLL_X]
+  ld a, [pLCD_SCROLL_X]
   adc a, 1
-  ld [LCD_SCROLL_X], a
+  ld [pLCD_SCROLL_X], a
 
   jp game_draw
 
@@ -101,7 +101,7 @@ game_draw::
 
 load_game_data::
   ; Configure LCD
-  ld HL, LCD_CTRL
+  ld HL, pLCD_CTRL
   ; Reset OBJ (Sprite) Display (0: off)
   set 1, [HL]
   ; Set BG Tile Map Display Select (1: $9C00-$9FFF)
@@ -122,11 +122,11 @@ load_game_data::
   ld [SHIP_Y], a
 
   ; Set palettes
-  ld hl, LCD_BG_PAL
+  ld hl, pLCD_BG_PAL
   LD [hl], %11101010
-  ld hl, OBJ0_PAL
+  ld hl, pOBJ0_PAL
   ld [hl], %00000000
-  ld hl, OBJ1_PAL
+  ld hl, pOBJ1_PAL
   ld [hl], %00000000
 
   ; Clear OAM
@@ -139,13 +139,13 @@ load_game_data::
   ; Load sprite tiles
   ld de, ship_tile_data_size ;len
   ld bc, ship_tile_data ;src
-  ld hl, VRAM_TILES_SPRITE ;dest
+  ld hl, pVRAM_TILES_SPRITE ;dest
   call memcpy
 
   ; load top tile map to vram (background)
   ld DE, bg_space_tile_data_size
   ld BC, bg_space_tile_data
-  ld HL, VRAM_TILES_BACKGROUND
+  ld HL, pVRAM_TILES_BACKGROUND
   call memcpy
 
   call load_all_tiles
