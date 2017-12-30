@@ -34,9 +34,6 @@ update_ship::
   dec a
   jr nz, .update_done
 .update_position:
-  ; ld a, [SHIP_X]
-  ; sbc a, SHIP_VELOCITY
-  ; ld [SHIP_X], a
   ld a, DEFAULT_MOVE_COUNTDOWN
 .update_done:
   ld [MOVE_COUNTDOWN], a
