@@ -4,6 +4,13 @@ _RESET_: MACRO
   call wait_vblank
   call lcd_off
   call clear_bg_map
+
+  ; Clear OAM
+  ld a, 0 ; value
+  ld hl, $FE00 ; start of OAM
+  ld bc, $A0 ; the full size of the OAM area: 40 bytes, 4 bytes per sprite
+  call mem_set
+
   call lcd_on
 
   ld HL, pLCD_SCROLL_Y

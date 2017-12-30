@@ -91,8 +91,6 @@ load_splash_data::
   ld bc, 31 * 8 ;
   call mem_copy_mono
 
-  call clear_oam
-
   ; P
   ld HL, $FE00 + ($04 * 0)
   ld [hl], PROMPT_Y ;y
