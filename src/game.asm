@@ -4,7 +4,7 @@ SECTION "game_vars", WRAM0
 ; Controls the draw rate by overflowing when a frame
 ; is to be animated.
 INTERRUPT_COUNTER: ds 1
-DEFAULT_INTERRUPT_COUNTER EQU $01
+DEFAULT_INTERRUPT_COUNTER EQU $1
 
 SECTION "game", ROMX
 
@@ -37,11 +37,11 @@ start_game::
   ei
 
 .game_loop:
-  call draw_ship
   jr .game_loop
 
 handle_game_timer_interrupt::
   call update_background
+  call update_ship
   reti
 
 update_background::
@@ -49,10 +49,9 @@ update_background::
   ld a, [INTERRUPT_COUNTER]
   dec a
   jp nz, .finish
-
   ; If zero, move the viewport and reset the counter
   ld a, [pLCD_SCROLL_Y]
-  sbc a, 1
+  sbc a, 2
   ld [pLCD_SCROLL_Y], a
   ld a, DEFAULT_INTERRUPT_COUNTER
 
@@ -102,7 +101,6 @@ load_game_data::
 
   call load_all_tiles
   call init_ship
-  call draw_ship
   ret
 
 load_all_tiles:
