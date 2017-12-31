@@ -1,15 +1,13 @@
 SECTION "ship_vars", WRAM0
 
-MOVE_COUNTDOWN: ds 1
-DEFAULT_MOVE_COUNTDOWN EQU $1 ; cycles/px
-
 ; Dynamic ship x position
 SHIP_X:: ds 1
 SHIP_Y:: ds 1
+
+; The velocity of the ship along the x axis.
+SHIP_Vx:: ds 1
 ; 0: left, 1: right
 SHIP_DIRECTION:: ds 1
-
-SHIP_VELOCITY EQU 1
 
 SECTION "ship", ROMX
 
@@ -23,24 +21,49 @@ init_ship::
   ld a, $80
   ld [SHIP_Y], a
 
-  ld a, DEFAULT_MOVE_COUNTDOWN
-  ld [MOVE_COUNTDOWN], a
+  ; Initialize the x velocity to 0
+  ld a, 1
+  ld [SHIP_Vx], a
   ret
 
 ; Called on every cycle of the 4096 Mhz timer.
 update_ship::
   push af
-  ld a, [MOVE_COUNTDOWN]
-  dec a
-  jr nz, .update_done
-.update_position:
-  ld a, DEFAULT_MOVE_COUNTDOWN
-.update_done:
-  ld [MOVE_COUNTDOWN], a
+  push bc
+  ; Pressing the left or right button will apply
+  ; acceleration to the ship's current velocity
+  call read_joypad
+  ld hl, IO_P14
+  bit BUTTON_LEFT, [hl]
+  jr z, .update_position
+  bit BUTTON_RIGHT, [hl]
+  jr z, .update_position
+  jr .update_done
+.update_position::
+  ; Calculate next x position (x1)
+  ; x1 = x0 + vx(dt), where dt = 1
+  ld a, [SHIP_Vx]
+  ld b, a
+  ld a, [SHIP_X]
+  ld hl, IO_P14
+  bit BUTTON_RIGHT, [hl]
+  jr nz, .move_right
+.move_left:
+  add a, b
+  jr .update_continue
+.move_right:
+  sub a, b
+.update_continue:
+  ld [SHIP_X], a
+
+.update_done::
+  pop bc
   pop af
   call draw_ship
   ret
 
+; Update the shadow OAM. Actual render does not happen
+; until the vblank interrupt.
 draw_ship::
   push af
   push bc
