@@ -12,6 +12,13 @@ INCLUDE "constants.inc"
 INCLUDE "bg_space_map.inc"
 INCLUDE "macros.inc"
 INCLUDE "ship_map.inc"
+INCLUDE "ibmpc1.inc"
+
+; Beginning of the score tile map data in the window
+pSCORE_MAP EQU $9981
+
+; The first tile in tiles for numbers 0-9
+pSCORE_NUM_OFFSET EQU $47
 
 start_game::
   di
@@ -32,11 +39,6 @@ start_game::
   ld [GAME_STATE], a
 
   call load_game_data
-
-  ld b, $6F
-  ld c, $00
-  call set_window_xy
-  call set_window_on
 
   call lcd_on
   ei
@@ -72,8 +74,41 @@ load_game_data::
   set 1, [HL]
   ; Set BG Tile Map Display Select (1: $9C00-$9FFF)
   set 3, [HL]
-  ; Reset BG & Window tile data select (0: $8800-$97FF)
+
+  ; Set BG & Window tile data select '
+  ; 0: $8800-$97FF (res)
+  ; 1: $8000-$8FFF (set) <- Same area as OBJ
   res 4, [HL]
+
+  ; Set the Window Tile Map display
+  ; 0 - $9800 - $9bff (res)
+  ; 1 - $9c00 - $9fff (set)
+  res 6, [hl]
+
+  ; Set the window to x=111, y=0 (48px wide)
+  ld b, $76
+  ld c, $00
+  call set_window_xy
+
+  ; Zero out the score
+  ld hl, pSCORE_MAP
+  ld [hl], $47
+  inc l
+  ld [hl], $47
+  inc l
+  ld [hl], $47
+  inc l
+  ld [hl], $47
+
+
+  ; Turn on the window
+  call set_window_on
+
+  ; Load the ASCII tileset into the bg tiles
+  ld hl, ascii
+  ld de, $9370
+  ld bc, 31 * 8 ; byte count - 31 letters x 8 bytes
+  call mem_copy_mono
 
   ; Initialize the interrupt counter
   ; TODO just zero the whole variables blockw
@@ -111,6 +146,9 @@ load_game_data::
 load_all_tiles:
   ld de, bg_space_tile_map_size ;len
   ld bc, bg_space_map_data ;src
-  ld hl, $9C00 ;dest
+  ld hl, pVRAM_MAP_BG ;dest
   call memcpy
   ret
+
+ascii:
+  chr_IBMPC1 2, 2
