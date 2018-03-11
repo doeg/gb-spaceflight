@@ -19,11 +19,11 @@ INCLUDE "ibmpc1.inc"
 ; TODO this should really use an offset from the window's
 ; tile map display ($9800).
 pSCORE_MAP EQU $9981
-
+pSCORE_MAP_END EQU $9984
 ; The tile number of the first tile in tiles for numbers 0-9.
-; The tile for the digit "1" would be `pSCORE_NUM_OFFSET + $1`,
-; the tile for digit "2" would be `pSCORE_NUM_OFFSET + $2`, etc. 
-pSCORE_NUM_OFFSET EQU $47
+; The tile for the digit "1" would be `ASCII_NUM_0 + $1`,
+; the tile for digit "2" would be `ASCII_NUM_0 + $2`, etc.
+ASCII_NUM_0 EQU $47
 
 start_game::
   di
@@ -95,15 +95,24 @@ load_game_data::
   ld c, $00
   call set_window_xy
 
-  ; Zero out the score
-  ld hl, pSCORE_MAP
-  ld [hl], $47
-  inc l
-  ld [hl], $47
-  inc l
-  ld [hl], $47
-  inc l
-  ld [hl], $47
+zero_score::
+  ; Zeroes out the score
+  ld hl, GAME_SCORE
+  ld a, $00
+  ld [hl], a
+  inc hl
+  ld [hl], a
+
+  ; Zero out the score. Digits are drawn from visual right (lowest digit)
+  ; to left (highest digit). (This lets us shift right.)
+  ld hl, pSCORE_MAP_END
+  ld [hl], ASCII_NUM_0
+  dec l
+  ld [hl], ASCII_NUM_0 + 1
+  dec l
+  ld [hl], ASCII_NUM_0 + 2
+  dec l
+  ld [hl], ASCII_NUM_0 + 3
 
 
   ; Turn on the window
@@ -153,6 +162,14 @@ load_all_tiles:
   ld bc, bg_space_map_data ;src
   ld hl, pVRAM_MAP_BG ;dest
   call memcpy
+  ret
+
+; Increments game score by 1
+increment_score::
+  push hl
+  ld hl, GAME_SCORE
+  inc [hl]
+  pop hl
   ret
 
 ascii:

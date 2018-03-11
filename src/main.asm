@@ -63,6 +63,11 @@ variables_start:
 SHADOW_OAM:: ds 40 * 4
 
 GAME_STATE:: ds 1
+
+; The game score is 2 bytes (16 bits).
+; This gives a maximum score of $FFFF (65535)
+GAME_SCORE:: ds 2
+
 variables_end:
 
 SECTION "main", ROMX
