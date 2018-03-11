@@ -103,16 +103,38 @@ zero_score::
   inc hl
   ld [hl], a
 
-  ; Zero out the score. Digits are drawn from visual right (lowest digit)
-  ; to left (highest digit). (This lets us shift right.)
+; Draws the current value of the game score to the display.
+draw_score::
+  ; [hl] is the address of the tile data for the score on the screen.
+  ; So in other words, we're changing the pointers to which tiles
+  ; (ascii digits) are shown by changing the stored addresses.
   ld hl, pSCORE_MAP_END
-  ld [hl], ASCII_NUM_0
+
+  ; Start at the lowest digit and move left through memory
+  ; to the highest digit.
+  ld a, ASCII_NUM_0
+  ld [hl], a
+
+  ; Decrement to get the second digit (from the lowest)
+  ld a, ASCII_NUM_0
+  add a, $1
   dec l
-  ld [hl], ASCII_NUM_0 + 1
+  ld [hl], a
+
+  ; Third digit, always 0 for now
+  ld a, ASCII_NUM_0
+  add a, $2
   dec l
-  ld [hl], ASCII_NUM_0 + 2
+  ld [hl], a
+
+  ; Fourth digit, always 0 for now
+  ld a, ASCII_NUM_0
+  add a, $3
   dec l
-  ld [hl], ASCII_NUM_0 + 3
+  ld [hl], a
+
+.draw_score_end:
+  nop
 
   ; Turn on the window
   call set_window_on
