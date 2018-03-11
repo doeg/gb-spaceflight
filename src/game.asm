@@ -114,7 +114,6 @@ zero_score::
   dec l
   ld [hl], ASCII_NUM_0 + 3
 
-
   ; Turn on the window
   call set_window_on
 
@@ -162,14 +161,6 @@ load_all_tiles:
   ld bc, bg_space_map_data ;src
   ld hl, pVRAM_MAP_BG ;dest
   call memcpy
-  ret
-
-; Increments game score by 1
-increment_score::
-  push hl
-  ld hl, GAME_SCORE
-  inc [hl]
-  pop hl
   ret
 
 ascii:
