@@ -14,6 +14,12 @@ lcd_on::
   set 7, [HL]
   ret
 
+; Loops until Vblank and then returns. 
+;
+; When & why to use this:
+; The vblank interrupt happens every 16.6ms (~60 times/second)
+; and lasts ~1.1ms (10 scanlines). During this period
+; VRAM/OAM may be freely accessed, as the PPU is not using it.
 wait_vblank::
   push af
 .vblank_loop:
