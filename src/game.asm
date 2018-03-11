@@ -33,6 +33,11 @@ start_game::
 
   call load_game_data
 
+  ld b, $6F
+  ld c, $00
+  call set_window_xy
+  call set_window_on
+
   call lcd_on
   ei
 
