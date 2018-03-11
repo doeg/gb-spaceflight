@@ -14,10 +14,15 @@ INCLUDE "macros.inc"
 INCLUDE "ship_map.inc"
 INCLUDE "ibmpc1.inc"
 
-; Beginning of the score tile map data in the window
+; The address of the first map location for the first digit
+; in the four-digit score.
+; TODO this should really use an offset from the window's
+; tile map display ($9800).
 pSCORE_MAP EQU $9981
 
-; The first tile in tiles for numbers 0-9
+; The tile number of the first tile in tiles for numbers 0-9.
+; The tile for the digit "1" would be `pSCORE_NUM_OFFSET + $1`,
+; the tile for digit "2" would be `pSCORE_NUM_OFFSET + $2`, etc. 
 pSCORE_NUM_OFFSET EQU $47
 
 start_game::
