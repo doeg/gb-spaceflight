@@ -105,6 +105,10 @@ zero_score::
 
 ; Draws the current value of the game score to the display.
 draw_score::
+  ; Load the value of the current game score into b
+  ld hl, GAME_SCORE
+  ld b, [hl]
+
   ; [hl] is the address of the tile data for the score on the screen.
   ; So in other words, we're changing the pointers to which tiles
   ; (ascii digits) are shown by changing the stored addresses.
@@ -112,23 +116,31 @@ draw_score::
 
   ; Start at the lowest digit and move left through memory
   ; to the highest digit.
-  ld a, ASCII_NUM_0
+  ;
+  ; FIXME the offset added to ASCII_NUM_0 should come from GAME_SCORE[3]
+  ; Maybe use: `ADD HL, r16` (add the value in r16 to HL) -- but
+  ; ASCII_NUM_0 is not a pointer, it's just a 1-byte tile number
+  ; (e.g., 47) so probably fine to use easier math here...
+  ld a, ASCII_NUM_0 + $0
   ; Decrement to get the second digit (from the lowest)
   ld [hl-], a
 
   ; The offset we add to the "0" tile's position is simply
   ; that ascii digit. ASCII_NUM_0 + $1 -> tile "1", etc.
   ld a, ASCII_NUM_0
+  ; FIXME the offset added to ASCII_NUM_0 should come from GAME_SCORE[2]
   add a, $1
   ld [hl-], a
 
   ; Third digit, always 0 for now
   ld a, ASCII_NUM_0
+  ; FIXME the offset added to ASCII_NUM_0 should come from GAME_SCORE[1]
   add a, $2
   ld [hl-], a
 
   ; Fourth digit, always 0 for now
   ld a, ASCII_NUM_0
+  ; FIXME the offset added to ASCII_NUM_0 should come from GAME_SCORE[0]
   add a, $3
   ld [hl], a
 
