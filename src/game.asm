@@ -115,9 +115,11 @@ draw_score::
   ld a, ASCII_NUM_0
   ld [hl], a
 
-  ; Decrement to get the second digit (from the lowest)
+  ; The offset we add to the "0" tile's position is simply
+  ; that ascii digit. ASCII_NUM_0 + $1 -> tile "1", etc.
   ld a, ASCII_NUM_0
   add a, $1
+  ; Decrement to get the second digit (from the lowest)
   dec l
   ld [hl], a
 
