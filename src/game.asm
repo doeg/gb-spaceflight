@@ -113,26 +113,23 @@ draw_score::
   ; Start at the lowest digit and move left through memory
   ; to the highest digit.
   ld a, ASCII_NUM_0
-  ld [hl], a
+  ; Decrement to get the second digit (from the lowest)
+  ld [hl-], a
 
   ; The offset we add to the "0" tile's position is simply
   ; that ascii digit. ASCII_NUM_0 + $1 -> tile "1", etc.
   ld a, ASCII_NUM_0
   add a, $1
-  ; Decrement to get the second digit (from the lowest)
-  dec l
-  ld [hl], a
+  ld [hl-], a
 
   ; Third digit, always 0 for now
   ld a, ASCII_NUM_0
   add a, $2
-  dec l
-  ld [hl], a
+  ld [hl-], a
 
   ; Fourth digit, always 0 for now
   ld a, ASCII_NUM_0
   add a, $3
-  dec l
   ld [hl], a
 
 .draw_score_end:
