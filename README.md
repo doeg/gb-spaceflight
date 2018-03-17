@@ -15,7 +15,8 @@ wine ~/path/to/bgb/bgb.exe spaceflight.gb
 
 ## Toolchain
 - [RGBDS](https://rednex.github.io/) to compile assembly to ROM
-- [GameBoy Tile Data Generator](http://www.chrisantonellis.com/gameboy/gbtdg/) to turn .pngs into assembly
+- [GameBoy Tile Designer](http://www.devrs.com/gb/hmgd/gbtd.html) for making sprites
+- [GameBoy Map Builder](http://www.devrs.com/gb/hmgd/gbmb.html) for making tile maps
 - [BGB emulator](http://bgb.bircd.org/) (under [WINE](https://www.winehq.org/) on OSX)
 
 ## Resources
