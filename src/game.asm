@@ -16,8 +16,10 @@ SECTION "game", ROMX
 
 INCLUDE "constants.inc"
 INCLUDE "bg_space_map.inc"
+INCLUDE "ibmpc1.inc"
 INCLUDE "macros.inc"
 INCLUDE "ship_map.inc"
+
 
 start_game::
   di
@@ -39,12 +41,28 @@ start_game::
 
   call load_game_data
 
-init_window::
+.load_ascii:
+  ; Load the ASCII tileset into sprite memory
+  ld hl, ascii
+  ld de, pVRAM_TILES_SPRITE + $40
+  ld bc, 31 * 8 ;
+  call mem_copy_mono
+
+  ld hl, ascii_nums
+  ld de, $81f0
+  ld bc, 31 * 8
+  call mem_copy_mono
+
+.init_window:
   call window_on
   ld b, WIN_X
   ld c, WIN_Y
   call window_set_pos
 
+  ld hl, ScoreText
+
+
+.enable_lcd:
   call lcd_on
   ei
 
@@ -121,3 +139,13 @@ load_all_tiles:
   ld hl, $9C00 ;dest
   call memcpy
   ret
+
+; Initialise the ascii tileset
+ascii:
+  chr_IBMPC1 3, 3
+ascii_nums:
+  chr_IBMPC1 2, 2
+
+; String constants
+ScoreText:
+  db "SCORE"

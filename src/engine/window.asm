@@ -1,4 +1,3 @@
-; This file contains utilities for working with the window.
 SECTION "window", ROM0
 
 INCLUDE "constants.inc"

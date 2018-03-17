@@ -1,0 +1,39 @@
+charmap "@", $04  ; terminator. Can't print this character. Marks the end of strings.
+charmap " ", $1F
+
+charmap "0", $2F
+charmap "1", $30
+charmap "2", $31
+charmap "3", $32
+charmap "4", $33
+charmap "5", $34
+charmap "6", $35
+charmap "7", $36
+charmap "8", $37
+charmap "9", $38
+charmap "A", $05
+charmap "B", $06
+charmap "C", $07
+charmap "D", $08
+charmap "E", $09
+charmap "F", $0A
+charmap "G", $0B
+charmap "H", $0C
+charmap "I", $0D
+charmap "J", $0E
+charmap "K", $0F
+charmap "L", $10
+charmap "M", $11
+charmap "N", $12
+charmap "O", $13
+charmap "P", $14
+charmap "Q", $15
+charmap "R", $16
+charmap "S", $17
+charmap "T", $18
+charmap "U", $19
+charmap "V", $1A
+charmap "W", $1B
+charmap "X", $1C
+charmap "Y", $1D
+charmap "Z", $1E
