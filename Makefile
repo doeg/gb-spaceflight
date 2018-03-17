@@ -12,7 +12,8 @@ SOURCES = \
 	src/memory.asm \
 	src/splash.asm \
 	src/game.asm \
-	src/ship.asm
+	src/ship.asm \
+	src/engine/window.asm
 
 FIX_FLAGS = -v -p 0
 

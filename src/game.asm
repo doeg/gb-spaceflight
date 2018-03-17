@@ -1,3 +1,4 @@
+; Variables for gameplay
 SECTION "game_vars", WRAM0
 
 ; One byte counter that gets decremented in a timer.
@@ -5,6 +6,11 @@ SECTION "game_vars", WRAM0
 ; is to be animated.
 INTERRUPT_COUNTER: ds 1
 DEFAULT_INTERRUPT_COUNTER EQU $1
+
+
+WIN_WIDTH EQU 7 * 8 ; pixels (tiles x px/tile)
+WIN_X EQU 160 - WIN_WIDTH
+WIN_Y EQU 0
 
 SECTION "game", ROMX
 
@@ -32,6 +38,12 @@ start_game::
   ld [GAME_STATE], a
 
   call load_game_data
+
+init_window::
+  call window_on
+  ld b, WIN_X
+  ld c, WIN_Y
+  call window_set_pos
 
   call lcd_on
   ei
